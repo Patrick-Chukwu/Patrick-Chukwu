@@ -6,10 +6,10 @@
 
 - 👯 I’m open to collaborations.
 
-- 📫 You can reach me:
- chukwupatrickify@gmail.com
-LinkedIn: https://www.linkedin.com/in/patrick-chukwu
-Twitter: https://twitter.com/d_patrickchukwu
+- 📫 You can reach me via:
+  - chukwupatrickify@gmail.com
+  - LinkedIn: https://www.linkedin.com/in/patrick-chukwu
+  - Twitter: https://twitter.com/d_patrickchukwu
 
 - 😄 Pronouns: He/him
 
