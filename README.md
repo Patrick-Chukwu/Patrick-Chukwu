@@ -1,6 +1,6 @@
-### Hi there 👋
+## Hi there 👋
 
-# A summary:
+# A summary of me:
 I am Patrick Chukwu. I currently work as a frontend software developer and fullstack low/no-code developer. When not coding, I lead a change through Integreated Global, a non-profit that empowers out-of-school college students.
 
 
@@ -25,5 +25,5 @@ I am Patrick Chukwu. I currently work as a frontend software developer and fulls
 
 
 
-### 🤝 Connect, Follow, Subscribe:
+## 🤝 Connect, Follow, Subscribe or Send a message:
 [![Linkedin](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/patrick-chukwu/)
