@@ -28,4 +28,6 @@ If you're still here you must be ready for a long ride. I hope you've got yourse
 ## 🤝 Connect, Follow, Subscribe or Send a message:
 [![Linkedin](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/patrick-chukwu/)
 ![Twitter Follow](https://img.shields.io/twitter/follow/:user)
+![Twitter URL](https://img.shields.io/twitter/url?logo=Twitter&logoColor=white&link=https%3A%2F%2Fwww.twitter.com%2Fd_patrickchukwu)
+
 
