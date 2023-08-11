@@ -34,8 +34,9 @@ If you're still here you must be ready for a long ride. I hope you've got yourse
 <img style="padding:5px;" align="center" alt="ReactJs" width="35px" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/react/react.png"/>
 <img style="padding:5px;" align="center" alt="ReactJs" width="35px" src="https://github.com/Patrick-Chukwu/Patrick-Chukwu/assets/103491423/10dc8294-3c2a-4d55-9f02-d042feaa7559"/>
 
-
-
+src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/react/react.png"/>
+<img style="padding:5px;" align="center" alt="Bitcoin" width="35px" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/bitcoin/bitcoin.png
+"/>
 <!-- and more such images with different URLs in src -->
 </p>
 
