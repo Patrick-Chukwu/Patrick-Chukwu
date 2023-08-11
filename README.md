@@ -1,4 +1,4 @@
-[![Typing SVG](https://readme-typing-svg.demolab.com/?lines=Hi+there.;Welcome+to+my+page)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.demolab.com/?lines=Hi+there!+Welcome+to+my+page)](https://git.io/typing-svg)
 # A summary of me:
 I am Patrick Chukwu. I currently work as a frontend software developer and fullstack low/no-code developer. When not coding, I lead the change through Integreated Global, a non-profit that empowers out-of-school college students.
 
