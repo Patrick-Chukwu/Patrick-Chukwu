@@ -21,4 +21,4 @@ I am Patrick Chukwu. I work as a frontend software developer. Fullstack no-code 
 
 
 ### 🤝 Connect, Follow, Subscribe:
-[![Linkedin]https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/patrick-chukwu/)
+[![Linkedin] (https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/patrick-chukwu/)
