@@ -39,3 +39,5 @@ If you're still here you must be ready for a long ride. I hope you've got yourse
 <!-- and more such images with different URLs in src -->
 </p>
 
+
+[![Patrick's GitHub stats](https://github-readme-stats.vercel.app/api?username=Patrick-Chukwu)](https://github.com/Patrick-Chukwu/github-readme-stats)
