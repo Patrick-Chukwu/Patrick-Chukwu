@@ -40,4 +40,5 @@ If you're still here you must be ready for a long ride. I hope you've got yourse
 </p>
 
 
-[![Patrick's GitHub stats](https://github-readme-stats.vercel.app/api?username=Patrick-Chukwu)](https://github.com/Patrick-Chukwu/github-readme-stats)
+[![Patrick's GitHub stats](https://github-readme-stats.vercel.app/api?username=)](https://github.com/Patrick-Chukwu/github-readme-stats)
+[![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=Patrick-Chukwu&show_icons=true)](https://github.com/anuraghazra/github-readme-stats)
