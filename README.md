@@ -2,8 +2,7 @@
 
 
 ## A summary 
-I am Patrick Chukwu. I currently work as a front-end software developer and full-stack low/no-code developer. When not coding, I lead the change through Integreated Global, a non-profit that empowers out-of-school college students.
-
+I am Patrick Chukwu. I currently work as a front-end software developer and full-stack low/no-code developer. 
 ## A more detailed overview:
 - 🔭 I am a graduate of mathematics from the University of Ilorin
 - I started learning to code to solve my problems and have enjoyed using it to solve other's problems.
