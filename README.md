@@ -1,11 +1,8 @@
-[![Typing SVG](https://readme-typing-svg.demolab.com/?lines=Hi+there!+Welcome+to+Patrick's+page)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.demolab.com/?lines=Hi+there!+I+am+Patrick)](https://git.io/typing-svg)
+
 
 ## A summary 
 I am Patrick Chukwu. I currently work as a front-end software developer and full-stack low/no-code developer. When not coding, I lead the change through Integreated Global, a non-profit that empowers out-of-school college students.
-
-### Hold on a sec...
-If you're still here you must be ready for a long ride. I hope you've got yourself a cup of coffee. Speaking of coffee, you can:
-<a href="https://bmc.link/patrickchukwu" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 ## A more detailed overview:
 - 🔭 I am a graduate of mathematics from the University of Ilorin
@@ -17,7 +14,6 @@ If you're still here you must be ready for a long ride. I hope you've got yourse
 - 📫 Get in touch:
   - chukwupatrickify@gmail.com
 
-### Oh, I almost forgot
 - my pronouns: He/him 😄 
 
 
