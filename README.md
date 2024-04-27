@@ -40,4 +40,6 @@ I am Patrick Chukwu. I currently work as a front-end software developer and full
 <!-- and more such images with different URLs in src -->
 </p>
 
+[![GitHub Streak](https://streak-stats.demolab.com?user=Patrick-Chukwu)](https://git.io/streak-stats)
+
 
