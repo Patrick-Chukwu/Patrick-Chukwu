@@ -39,6 +39,6 @@ Get in touch:
 <!-- and more such images with different URLs in src -->
 </p>
 
-[![GitHub Streak](https://streak-stats.demolab.com?user=Patrick-Chukwu)](https://git.io/streak-stats)
+[![GitHub Streak](https://streak-stats.demolab.com?user=Patrick-Chukwu&theme=dark)](https://git.io/streak-stats)
 
 
