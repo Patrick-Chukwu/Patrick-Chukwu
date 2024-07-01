@@ -15,7 +15,7 @@ const Navbar = () => {
   return (
     <nav className='p-4 border border-bcolor bg-brand  fixed top-0 left-0 w-full'>
       <div className='flex items-center justify-between'>
-      <div className="hidden md:flex justify-between items-center gap-2">
+      <div className="hidden md:flex justify-between items-center gap-4">
             <Link to="/" className='font-medium text-xl hover:text-white'>Home</Link>
             <Link to="/about" className='font-medium text-xl hover:text-white'>About</Link>
         </div>
@@ -25,9 +25,9 @@ const Navbar = () => {
         <Link to="/portfolio" className='font-medium text-xl hover:text-white hidden md:block'>Portfolio</Link>
         <Link to="/blog" className='font-medium text-xl hover:text-white hidden md:block'>Blog</Link>
 
-          <a href="" className='border-none rounded-full p-1 bg-primary text-black hover:text-black hover:bg-white'><FaLinkedin/></a>
-          {/* <a href="" className='border-none rounded-full p-1 bg-primary text-black hover:text-black hover:bg-white'><FaInstagram/></a> */}
-          <a href="" className='border-none rounded-full p-1 bg-primary text-black hover:text-black hover:bg-white'><FaXTwitter/></a>
+          <a href="https://www.linkedin.com/in/patrick-chukwu/" target='_blank' className='border-none rounded-full p-1 bg-primary text-black hover:text-black hover:bg-white'><FaLinkedin/></a>
+     
+          <a href="https://x.com/PattyFean" target='_blank' className='border-none rounded-full p-1 bg-primary text-black hover:text-black hover:bg-white'><FaXTwitter/></a>
 
         </div>
         <div className="-mr-2 flex lg:hidden">
