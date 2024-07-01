@@ -18,7 +18,7 @@ const ImageSlider = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 5000);
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
 
@@ -28,9 +28,9 @@ const ImageSlider = () => {
         <img
           key={index}
           src={image}
-          alt={`Slide ${index}`}
+          alt={`Project ${index}`}
           className={`absolute top-0 left-0 w-full h-full object-cover transition-transform duration-1000 ease-in-out ${index === currentIndex ? 'transform translate-x-0 opacity-90' : 'transform -translate-x-90 opacity-10'}`}
-          style={{ left: `${index * 10}%`, zIndex: index === currentIndex ? 10 : 0 }}
+          style={{ left: `${index * 5}%`, right: `${(index + 1) * 20}`, zIndex: index === currentIndex ? 10 : 0 }}
         />
       ))}
     </div>
