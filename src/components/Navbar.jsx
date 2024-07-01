@@ -18,8 +18,6 @@ const Navbar = () => {
       <div className="hidden md:flex justify-between items-center gap-2">
             <Link to="/" className='font-medium text-xl hover:text-white'>Home</Link>
             <Link to="/about" className='font-medium text-xl hover:text-white'>About</Link>
-            <Link to="" className='font-medium text-xl hover:text-white'>CV</Link>
-
         </div>
         <Link to="/"><img src={logo} className='bg-primary rounded-full size-10 hover:bg-white' alt="Chukwu Patrick Ifeanyi picture" /></Link>
         <div className="flex items-center justify-center gap-2">
