@@ -6,20 +6,20 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#376AEA',
-        secondary: '#FF6B00',
+        primary: '#8f8f90',
+        secondary: '#e2e4e8',
         black: '#000',
         white: '#fff',
         silver: "#454545",
         ash: '#564E4E',
-        grey: '#9E9C9C',
+        grey: '#232426',
         pic: '#EEEEEE',
         greylight: '#6D6D6D',
-        bcolor: '#BCD0FF',
+        bcolor: '#313336',
         lightash: '#323232',
         lightpowder: '#E9EFFD',
         sidebarcolor: '#000123',
-        servicecolor: '#F9FBFF',
+        brand: '#191a1c',
       },
       screens: {
         'sm': '640px',
