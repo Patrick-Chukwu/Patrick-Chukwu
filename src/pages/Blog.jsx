@@ -1,12 +1,12 @@
 import React from 'react'
 import Navbar from '../components/Navbar'
 
-const Portfolio = () => {
+const Blog = () => {
   return (
-    <div>
+    <div className='mt-24'>
       <Navbar/>
-    </div>
+      Contact</div>
   )
 }
 
-export default Portfolio
+export default Blog
