@@ -23,7 +23,7 @@ const ImageSlider = () => {
   }, []);
 
   return (
-    <div className="relative w-[80%]  mx-auto h-[90%] overflow-hidden my-8 p-4 opacity-40 hover:opacity-90  focus:opacity-90">
+    <div className="relative w-[80%]  mx-auto h-full overflow-hidden my-4 p-4 opacity-40 hover:opacity-90  focus:opacity-90">
       {images.map((image, index) => (
         <img
           key={index}
