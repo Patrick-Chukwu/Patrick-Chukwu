@@ -13,7 +13,7 @@ const Navbar = () => {
         setIsOpen(false);
     };
   return (
-    <nav className='p-4 border border-bcolor bg-brand  fixed top-0 left-0 w-full z-50'>
+    <nav className='p-4 border-b border-bcolor bg-brand  fixed top-0 left-0 w-full z-50'>
       <div className='flex items-center justify-between'>
       <div className="hidden md:flex justify-between items-center gap-4">
             <Link to="/" className='font-medium text-xl hover:text-white'>Home</Link>
