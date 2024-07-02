@@ -32,7 +32,7 @@ const LogoCarousel = () => {
         newLogos.push(logos[(logos.indexOf(newLogos[newLogos.length - 1]) + 1) % logos.length]);
         return newLogos;
       });
-    }, 2000); // Change logo every 2 seconds
+    }, 2000);
 
     return () => clearInterval(interval);
   }, []);

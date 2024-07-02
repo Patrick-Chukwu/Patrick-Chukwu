@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar'
 import ImageSlider from '../components/ImageSlider'
 import {  FaGithub, FaMailBulk  } from 'react-icons/fa'
 import LogoCarousel from '../components/LogoCarousel'
+import Skills from '../components/Skills'
 
 const Home = () => {
   return (
@@ -30,6 +31,9 @@ const Home = () => {
         </section>
         <section>
           <LogoCarousel/>
+          <h2 className="text-2xl font-semibold text-center text-secondary">Skills</h2>
+
+        <Skills/>
         </section>
     </div>
   )
