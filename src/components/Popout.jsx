@@ -19,13 +19,13 @@ const item = { hidden: { x: -40, opacity: 10, scale: 1.2}}
 
 
       {/* <p>New animation on list</p> */}
-      <motion.ul className='flex gap-4 w-fit mx-auto' animate="hidden" variants={list}>
+      {/* <motion.ul className='flex gap-4 w-fit mx-auto' animate="hidden" variants={list}>
         <motion.li variants={item} className='size-28 bg-white'/>
         <motion.li whileHover={{scale: 0.8, right: 100}} variants={item} className='size-28 bg-black'/>
         <motion.li  className='size-28 bg-silver'/>
 
 
-      </motion.ul>
+      </motion.ul> */}
     </div>
     
   )
