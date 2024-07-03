@@ -4,6 +4,7 @@ import ImageSlider from '../components/ImageSlider'
 import {  FaGithub, FaMailBulk  } from 'react-icons/fa'
 import LogoCarousel from '../components/LogoCarousel'
 import Skills from '../components/Skills'
+import Footer from '../components/Footer'
 
 const Home = () => {
   return (
@@ -35,6 +36,8 @@ const Home = () => {
 
         <Skills/>
         </section>
+
+        <Footer/>
     </div>
   )
 }
