@@ -1,6 +1,7 @@
 import React from 'react'
 import Navbar from '../components/Navbar'
 import Skills from '../components/Skills'
+import Popout from '../components/Popout'
 
 const Portfolio = () => {
   return (
@@ -8,6 +9,7 @@ const Portfolio = () => {
       <Navbar/>
       <h2 className="text-2xl text-secondary font-semibold text-center">Skills</h2>
       <Skills/>
+      <Popout/>
     </div>
   )
 }

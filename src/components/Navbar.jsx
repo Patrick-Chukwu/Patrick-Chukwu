@@ -1,8 +1,8 @@
 import React, {useState} from 'react'
 import logo from '../assets/Patrick.png'
 import { Link } from 'react-router-dom';
-import { FaInstagram, FaLinkedin } from 'react-icons/fa';
-import { FaTwitter, FaX, FaXTwitter } from 'react-icons/fa6';
+import {  FaLinkedin } from 'react-icons/fa';
+import {   FaXTwitter } from 'react-icons/fa6';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
