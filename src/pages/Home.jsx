@@ -5,6 +5,7 @@ import {  FaGithub, FaMailBulk  } from 'react-icons/fa'
 import LogoCarousel from '../components/LogoCarousel'
 import Skills from '../components/Skills'
 import Footer from '../components/Footer'
+import Projects from '../components/Projects'
 
 const Home = () => {
   return (
@@ -36,7 +37,9 @@ const Home = () => {
 
         <Skills/>
         </section>
-
+      <section>
+        <Projects/>
+      </section>
         <Footer/>
     </div>
   )
