@@ -15,7 +15,7 @@ const Projects = () => {
           </div>
           <p className="text-sm text-primary px-2 font-normal text-left w-full">Developed a web application for a HealthCare Management System.</p>
           <div className='border border-bcolor rounded-xl p-2'>
-            <img src={project1} className='w-full mx-auto rounded-xl' alt="CareTrackPlus landing page" />
+            <a href="https://caretrack.vercel.app/" target='_blank'><img src={project1} className='w-full mx-auto rounded-xl opacity-20' alt="CareTrackPlus landing page" /></a>
           </div>
 
         </motion.div>

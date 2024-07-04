@@ -16,6 +16,8 @@ const Home = () => {
           <h2 className='text-primary text-2xl'>Meet Patrick Chukwu</h2>
           <p className="text-secondary font-semibold text-3xl">A Software Developer</p>
           <p className='text-primary text-2xl'>Building amazing stuff.</p>
+          <p className='text-secondary text-sm'>I help businesses build amazing web applications and products that scales with great user experiences.</p>
+
           </div>
           
           <div className="flex justify-between gap-8 w-[90%] items-center p-4 md:w-1/2 mx-auto my-4">
