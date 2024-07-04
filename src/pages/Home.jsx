@@ -16,7 +16,7 @@ const Home = () => {
           <h2 className='text-primary text-2xl text-left'>Meet Patrick Chukwu</h2>
           <p className="text-secondary font-semibold text-3xl text-left">A Software Developer</p>
           <p className='text-primary text-2xl text-left'>Building amazing stuff.</p>
-          <p className='text-secondary text-sm text-left'>I help businesses build amazing web applications and products that scales with great user experiences.</p>
+          <p className='text-secondary text-sm text-left'>I help businesses build amazing web applications and products that scale with great user experiences.</p>
 
           </div>
           
