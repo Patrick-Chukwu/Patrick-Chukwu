@@ -33,7 +33,7 @@ const Projects = () => {
           </div>
           <p className="text-sm text-primary px-2 font-normal text-left w-full">Developed the website for Africa's biggest tech event.</p>
           <div className='border border-bcolor rounded-xl p-2'>
-            <a href="https://caretrack.vercel.app/" target='_blank'><motion.img initial={{scale:.8, opacity:0}} whileInView={{scale: 1, opacity:1}} src={project4} className='w-full mx-auto rounded-xl' alt="CareTrackPlus landing page" /></a>
+            <a href="https://respectechconference.vercel.app/" target='_blank'><motion.img initial={{scale:.8, opacity:0}} whileInView={{scale: 1, opacity:1}} src={project4} className='w-full mx-auto rounded-xl' alt="Respectech Conference landing page" /></a>
           </div>
 
         </motion.div>
@@ -45,7 +45,7 @@ const Projects = () => {
           </div>
           <p className="text-sm text-primary px-2 font-normal text-left w-full">Built a web application for a Fintech Platform.</p>
           <div className='border border-bcolor rounded-xl p-2'>
-            <a href="https://caretrack.vercel.app/" target='_blank'><motion.img initial={{scale:.8, opacity:0}} whileInView={{scale: 1, opacity:1}} src={project2} className='w-full mx-auto rounded-xl' alt="CareTrackPlus landing page" /></a>
+            <a href="https://thebanka.vercel.app/" target='_blank'><motion.img initial={{scale:.8, opacity:0}} whileInView={{scale: 1, opacity:1}} src={project2} className='w-full mx-auto rounded-xl' alt="Image of Banka landing page" /></a>
           </div>
 
         </motion.div>
@@ -58,7 +58,7 @@ const Projects = () => {
           </div>
           <p className="text-sm text-primary px-2 font-normal text-left w-full">Collaborated on the frontend team of a HR service Platform.</p>
           <div className='border border-bcolor rounded-xl p-2'>
-            <a href="https://caretrack.vercel.app/" target='_blank'><motion.img initial={{scale:.8, opacity:0}} whileInView={{scale: 1, opacity:1}} src={project3} className='w-full mx-auto rounded-xl' alt="CareTrackPlus landing page" /></a>
+            <a href="https://siliconverse-frontend.vercel.app/" target='_blank'><motion.img initial={{scale:.8, opacity:0}} whileInView={{scale: 1, opacity:1}} src={project3} className='w-full mx-auto rounded-xl' alt="Siliconverse landing page" /></a>
           </div>
 
         </motion.div>

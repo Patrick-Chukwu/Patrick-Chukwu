@@ -6,7 +6,7 @@ const Blog = () => {
   return (
     <div className='mt-24'>
       <Navbar/>
-      <h3 className="text-xl font-medium text-center">When I am not too engrossed on projects, I create contents around the three sectors I currently find interest, viz: tech, education and social impact.</h3>
+      <h3 className="text-xl font-medium text-center w-[98%] max-w-[710px] mx-auto">When I am not too engrossed on projects, I create contents around the three sectors I currently find interest, viz: tech, education and social impact.</h3>
       <div className="flex gap-4 justify-center items-center p-4 ">
         <a href="https://medium.com/@chukwupatrickify/a-birds-eye-view-at-different-front-end-technologies-415f0d02630c" target='_blank'>
         <div className="w-[360px] flex flex-col gap-2 justify-center items-center p-2 border border-bcolor rounded-md shadow">
