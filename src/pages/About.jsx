@@ -17,6 +17,8 @@ I am driven by a passion for leveraging technology to solve complex challenges. 
 
 </p>
 <p className="text-sm md:text-xl font-medium p-4 text-left">I collaborate closely with clients to understand their unique requirements while bringing creativity and attention to detail to every project. I'm committed to staying at the forefront of industry trends and technologies by continuously enhancing my skills to deliver results that exceed expectations.</p>
+<h3 className="text-xl font-bold text-center text-secondary">Skills</h3>
+<Skills/>
 <p className="p-4 text-sm font-medium md:text-xl">When I'm not busy exploring new technologies, you'll find me contributing to courses that better humanity either through the social impact ventures I am a part of or paying it back through advocacy and actions that foster education.
 
 They say curiosity killed the cat, but either I'm the cat that can't die or I'm here to prove them wrong!</p>
@@ -24,8 +26,7 @@ They say curiosity killed the cat, but either I'm the cat that can't die or I'm 
    
       </div>
 
-      <h3 className="text-xl font-bold text-center text-secondary">Skills</h3>
-      <Skills/>
+   
     </div>
   )
 }
