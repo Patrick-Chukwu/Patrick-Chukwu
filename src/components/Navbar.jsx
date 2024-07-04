@@ -75,8 +75,8 @@ to="/about" className="text-white font-normal text-xl block px-3 py-2 rounded-md
  to="/blog" className="text-white font-normal text-xl block px-3 py-2 rounded-md hover:bg-primary">
             Blog
           </Link>
-       <Link to='' onClick={closeMenu}
- className='bg-primary text-black py-2 px-6 w-40 max-w-44 font-medium hover:text-white rounded-md lg:rounded-lg md:rounded-md xl:rounded-xl '>Book a call</Link>
+       <a href='https://calendar.app.google/zYzRKYgvBGGoMdw18' target='_blank' onClick={closeMenu}
+ className='bg-primary text-black py-2 px-4 w-fit font-medium hover:text-white rounded-md lg:rounded-lg md:rounded-md xl:rounded-xl '>Schedule a call</a>
         </div>
       </div>
     </nav>
