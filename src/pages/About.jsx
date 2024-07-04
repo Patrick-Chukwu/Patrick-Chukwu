@@ -7,7 +7,7 @@ const About = () => {
     <div className='mt-24'>
       <Navbar/>
       <div className="flex flex-col items-center justify-start gap-4">
-        <h2 className="text-3xl font-semibold w-[90%] max-w-[600px]">Hi, I am Patrick, <span className="text-2xl">a Software Engineer at the intersection of tech, social impact and education.</span>
+        <h2 className="text-3xl font-semibold w-[90%] max-w-[600px]">Hi, I am Patrick, <span className="text-2xl">a Software Developer at the intersection of tech, social impact and education.</span>
         </h2>
   
         <div className=" gap-4 justify-between items-center max-w-[700px]">
