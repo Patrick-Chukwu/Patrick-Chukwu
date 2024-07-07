@@ -14,7 +14,7 @@ const Popout = () => {
       whileHover={{scale: 1.5}}
       // whileTap={{x: -20, scaleX: 2}}
       drag="y"
-      dragConstraints={{ top:-100, bottom: 100}}
+      dragConstraints={{ top:-500, bottom: 10}}
       >
         <a href="https://wa.me/message/4GGBPY2AUFEMB1"><FaWhatsapp/></a>
       </motion.div>
