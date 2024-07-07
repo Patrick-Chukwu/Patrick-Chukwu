@@ -37,13 +37,13 @@ const Home = () => {
         </section>
         <section>
           <LogoCarousel/>
-          <div className="py-8 flex flex-col gap-4 border-t border-b border-silver items-left justify-center my-4 w-[98%] max-w-[700px] mx-auto ">
+          <div className="px-2 py-8 flex flex-col gap-4 border-t border-b border-silver items-left justify-center my-4 w-[98%] max-w-[700px] mx-auto ">
           <p className='text-primary text-3xl font-bold text-left'>Literally take your idea from 0 to 1</p>
           <p className='text-secondary text-xl text-left'>Building websites, web and mobile applications that help your business scale and generate better return</p>
           </div>
         </section>
       <section className='w-[98%] max-w-[750px] mx-auto '>
-      <h2 className="text-3xl text-secondary  text-center font-bold">Selected works</h2>
+      <h2 className="text-3xl text-secondary  text-center font-bold px-4">Selected works</h2>
 
         <Projects/>
       </section>
