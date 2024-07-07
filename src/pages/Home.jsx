@@ -6,6 +6,7 @@ import LogoCarousel from '../components/LogoCarousel'
 import Skills from '../components/Skills'
 import Footer from '../components/Footer'
 import Projects from '../components/Projects'
+import Popout from '../components/Popout'
 
 const Home = () => {
   return (
@@ -29,6 +30,7 @@ const Home = () => {
          </div>
           
           </div>
+          <Popout/>
           <ImageSlider/>
 
 
