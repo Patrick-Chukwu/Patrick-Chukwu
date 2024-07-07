@@ -43,7 +43,7 @@ const Home = () => {
           </div>
         </section>
       <section className='w-[98%] max-w-[750px] mx-auto '>
-      <h2 className="text-3xl text-secondary  text-left font-bold">Selected works</h2>
+      <h2 className="text-3xl text-secondary  text-center font-bold">Selected works</h2>
 
         <Projects/>
       </section>
