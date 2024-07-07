@@ -35,9 +35,6 @@ const Home = () => {
         </section>
         <section>
           <LogoCarousel/>
-          <h2 className="text-2xl font-semibold text-center text-secondary">Skills</h2>
-
-        <Skills/>
         </section>
       <section>
         <Projects/>
