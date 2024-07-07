@@ -42,7 +42,9 @@ const Home = () => {
           <p className='text-secondary text-xl text-left'>Building websites, web and mobile applications that help your business scale and generate better return</p>
           </div>
         </section>
-      <section>
+      <section className='w-[98%] max-w-[750px] mx-auto '>
+      <h2 className="text-3xl text-secondary  text-center font-bold">Some of my works</h2>
+
         <Projects/>
       </section>
         <Footer/>
