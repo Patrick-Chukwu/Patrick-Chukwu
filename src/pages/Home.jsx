@@ -16,7 +16,7 @@ const Home = () => {
           <h2 className='text-primary text-2xl text-left'>Meet Patrick Chukwu</h2>
           <p className="text-secondary font-semibold text-3xl text-left">A Software Developer</p>
           <p className='text-primary text-2xl text-left'>Building amazing stuff.</p>
-          <p className='text-secondary text-sm text-left'>I help businesses build amazing web applications and products that scale with great user experiences.</p>
+          <p className='text-secondary text-sm text-left'>I help businesses and personal brands build amazing web applications and products with  awesome user experiences.</p>
 
           </div>
           
@@ -35,6 +35,10 @@ const Home = () => {
         </section>
         <section>
           <LogoCarousel/>
+          <div className="py-8 flex flex-col gap-4 border-t border-b border-silver items-left justify-center my-4 w-[98%] max-w-[700px] mx-auto ">
+          <p className='text-primary text-3xl font-bold text-left'>Literally take your idea from 0 to 1</p>
+          <p className='text-secondary text-xl text-left'>Building websites, web and mobile applications that help your business scale and generate better return</p>
+          </div>
         </section>
       <section>
         <Projects/>
