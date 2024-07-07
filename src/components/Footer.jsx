@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="flex justify-between items-center gap-2">
         <a href='https://calendar.app.google/zYzRKYgvBGGoMdw18' target='_blank'
  className='bg-primary text-black py-2 px-4 w-fit font-medium hover:text-white rounded-md lg:rounded-lg md:rounded-md xl:rounded-xl '>Book a call</a>
-    <a href="mailto:chukwupatrickify@gmail.com" target='_blank' className='bg-primary text-black py-2 px-4 w-fit font-medium hover:text-white rounded-md lg:rounded-lg md:rounded-md xl:rounded-xl'>mail me</a>
+    <a href="mailto:chukwupatrickify@gmail.com" target='_blank' className=' py-2 px-4 w-fit font-medium text-white rounded-md lg:rounded-lg md:rounded-md xl:rounded-xl'>📩 chukwupatrickify@gmail.com</a>
         </div>
     </div>
   )
