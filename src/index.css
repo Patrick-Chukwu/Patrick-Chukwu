@@ -6,3 +6,22 @@ body {
     background: #191a1c;
     color: #8f8f90;
 }
+
+#name {
+    --webkit-text-stroke: 5px black;
+}
+
+#name::before {
+    position: absolute;
+    content: "Patrick";
+    color: white;
+    animation: filling 2s linear infinite;
+    overflow: hidden;
+    border-right: 3px solid grey;
+
+}
+@keyframes filling {
+    0% {width: 0%;}
+    50% {width: 100%;}
+    100% {width: 0%;}
+}
