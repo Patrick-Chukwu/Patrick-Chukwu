@@ -14,7 +14,7 @@ const Home = () => {
         <Navbar/>
         <section className="p-2 h-dvh flex flex-col items-left justify-start items-center">
           <div className=' pl-2'>
-          <h2 className='text-primary text-2xl text-left ' >Meet <span id="name" className='relative font-black text-4xl'>Patrick</span> Chukwu</h2>
+          <h2 className='text-primary text-2xl text-left ' >Meet <span id="name" className='relative font-black text-4xl'>  Patrick </span> Chukwu</h2>
           <p className="text-secondary font-semibold text-3xl text-left">A Software Developer</p>
           <p className='text-primary text-2xl text-left'>Building amazing stuff.</p>
           <p className='text-secondary text-sm text-left'>I help businesses and personal brands build amazing web applications and products with  awesome user experiences.</p>

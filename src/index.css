@@ -13,7 +13,7 @@ body {
 
 #name::before {
     position: absolute;
-    content: "Patrick";
+    content: " Patrick ";
     color: white;
     animation: filling 2s linear infinite;
     overflow: hidden;
