@@ -3,7 +3,6 @@ import Navbar from '../components/Navbar'
 import ImageSlider from '../components/ImageSlider'
 import {  FaGithub, FaMailBulk  } from 'react-icons/fa'
 import LogoCarousel from '../components/LogoCarousel'
-import Skills from '../components/Skills'
 import Footer from '../components/Footer'
 import Projects from '../components/Projects'
 import Popout from '../components/Popout'
@@ -12,7 +11,7 @@ const Home = () => {
   return (
     <div className='flex flex-col mt-24'>
         <Navbar/>
-        <section className="p-2 h-dvh flex flex-col items-left justify-start items-center">
+        <section className="p-2 flex flex-col items-left justify-start items-center">
           <div className=' pl-2'>
           <h2 className='text-primary text-2xl text-left ' >Meet <span id="name" className='relative font-black text-4xl'>  Patrick </span> Chukwu</h2>
           <p className="text-secondary font-semibold text-3xl text-left">A Software Developer</p>
@@ -31,10 +30,14 @@ const Home = () => {
           
           </div>
           <Popout/>
-          <ImageSlider/>
 
 
         </section>
+        <section className='py-4 h-[500px]'>
+        <ImageSlider/>
+
+        </section>
+
         <section>
           <LogoCarousel/>
           <div className="px-2 py-8 flex flex-col gap-4 border-t border-b border-silver items-left justify-center my-4 w-[98%] max-w-[700px] mx-auto ">
