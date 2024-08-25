@@ -9,7 +9,7 @@ const Popout = () => {
   return (
     <div>
       <motion.div 
-      className=' w-fit text-black bg-white p-2 rounded-full fixed z-50 right-4 bottom-4'
+      className=' w-fit text-white bg-[green] p-3 rounded-full fixed z-50 right-4 bottom-4'
       
       whileHover={{scale: 1.5}}
       // whileTap={{x: -20, scaleX: 2}}
