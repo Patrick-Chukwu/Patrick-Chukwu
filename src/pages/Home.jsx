@@ -14,9 +14,9 @@ const Home = () => {
         <section className="p-2 flex flex-col items-left justify-start items-center">
           <div className=' pl-2'>
           <h2 className='text-primary text-2xl text-left ' >Meet <span id="name" className='relative font-black text-4xl'>  Patrick </span> Chukwu</h2>
-          <p className="text-secondary font-semibold text-3xl text-left">A Software Developer</p>
-          <p className='text-primary text-2xl text-left'>Building amazing stuff.</p>
-          <p className='text-secondary text-sm text-left'>I help businesses and personal brands build amazing web applications and products with  awesome user experiences.</p>
+          <p className="text-secondary font-semibold text-3xl text-left">A Software Engineer</p>
+          <p className='text-primary text-2xl text-left'>Building cool stuff.</p>
+          <p className='text-secondary text-sm text-left'>I build amazing websites,apps and and products with  awesome user experiences.</p>
 
           </div>
           
@@ -41,7 +41,7 @@ const Home = () => {
         <section>
           <LogoCarousel/>
           <div className="px-2 py-8 flex flex-col gap-4 border-t border-b border-silver items-left justify-center my-4 w-[98%] max-w-[700px] mx-auto ">
-          <p className='text-primary text-3xl font-bold text-left'>Literally take your idea from 0 to 1</p>
+          <p className='text-primary text-3xl font-bold text-left'>I Literally take your idea from ZERO to ONE</p>
           <p className='text-secondary text-xl text-left'>Building websites, web and mobile applications that help your business scale and generate better return</p>
           </div>
         </section>
