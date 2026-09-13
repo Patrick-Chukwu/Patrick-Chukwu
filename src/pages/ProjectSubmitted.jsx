@@ -76,17 +76,12 @@ const ProjectSubmitted = () => {
             <HiOutlineCheckCircle className="size-10 md:size-12" aria-hidden="true" />
             <span className="sr-only">Submission successful</span>
           </motion.div>
-          <h1 className="text-secondary text-3xl md:text-5xl font-bold leading-tight">
-            Thank You for Sharing Your Project!
-          </h1>
+  
           <p className="text-primary text-base md:text-xl mt-5 leading-relaxed max-w-[640px] mx-auto">
             Your project brief has been successfully submitted. I appreciate you taking the time
             to share your idea with me.
           </p>
-          <p className="text-primary text-sm md:text-lg mt-4 leading-relaxed max-w-[640px] mx-auto">
-            I&apos;ll review your requirements carefully and get back to you with any
-            clarification questions and the next steps toward bringing your project to life.
-          </p>
+ 
         </section>
 
         <section
