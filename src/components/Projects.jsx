@@ -8,9 +8,9 @@ import integreated from "../assets/Projectts/integreated.webp"
 
 const projectList = [
   {
-    name: "Integreated Academy",
+    name: "Highfrica Academy",
     description: "Developed a web application for an edtech. ",
-    href: "https://www.integreatedacademy.com.ng/",
+    href: "https://www.highfrica.com/",
     image: integreated,
     alt: "Integreated Academy landing page",
   },
