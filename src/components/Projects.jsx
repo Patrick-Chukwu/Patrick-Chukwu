@@ -38,14 +38,14 @@ const projectList = [
   {
     name: "Banka",
     description: "Built a web application for a Fintech Platform.",
-    href: "https://thebanka.vercel.app/",
+    href: "https://ourbanka.com/",
     image: project2,
     alt: "Image of Banka landing page",
   },
   {
     name: "Siliconverse",
     description: "Collaborated on the frontend team of a HR service Platform.",
-    href: "https://siliconverse-frontend.vercel.app/",
+    href: "https://siliconverse.net/",
     image: project3,
     alt: "Siliconverse landing page",
   },
