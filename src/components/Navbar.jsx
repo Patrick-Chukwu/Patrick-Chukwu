@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import {useState} from 'react'
 import logo from '../assets/Patrick.png'
 import { Link } from 'react-router-dom';
 import {  FaLinkedin } from 'react-icons/fa';
@@ -24,6 +24,7 @@ const Navbar = () => {
         <div className="flex justify-center items-center gap-2">
         <Link to="/portfolio" className='font-medium text-xl hover:text-white hidden md:block'>Portfolio</Link>
         <Link to="/blog" className='font-medium text-xl hover:text-white hidden md:block'>Blog</Link>
+        <Link to="/work-with-me" className='hidden lg:inline-flex bg-primary text-black py-1.5 px-3 font-medium text-base rounded-md hover:bg-white hover:text-black'>Work With Me</Link>
 
           <a href="https://www.linkedin.com/in/patrick-chukwu/" target='_blank' className='border-none rounded-full p-1 bg-primary text-black hover:text-black hover:bg-white'><FaLinkedin/></a>
      
@@ -36,7 +37,7 @@ const Navbar = () => {
               type="button"
               className="bg-primary inline-flex items-center justify-center p-1 rounded-md text-black hover:bg-white hover:text-black focus:outline-none focus:bg-white focus:text-black"
               aria-controls="mobile-menu"
-              aria-expanded="false"
+              aria-expanded={isOpen}
             >
               <span className="sr-only">Open main menu</span>
               {isOpen ? (
@@ -74,6 +75,10 @@ to="/about" className="text-white font-normal text-xl block px-3 py-2 rounded-md
           <Link onClick={closeMenu}
  to="/blog" className="text-white font-normal text-xl block px-3 py-2 rounded-md hover:bg-primary">
             Blog
+          </Link>
+          <Link onClick={closeMenu}
+ to="/work-with-me" className="text-black bg-primary font-medium text-xl block px-3 py-2 rounded-md hover:bg-white w-fit">
+            Work With Me
           </Link>
        <a href='https://calendar.app.google/zYzRKYgvBGGoMdw18' target='_blank' onClick={closeMenu}
  className='bg-primary text-black py-2 px-4 w-fit font-medium hover:text-white rounded-md lg:rounded-lg md:rounded-md xl:rounded-xl '>Schedule a call</a>
