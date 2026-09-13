@@ -4,6 +4,7 @@ import About from './pages/About';
 import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
 import WorkWithMe from './pages/WorkWithMe';
+import ProjectSubmitted from './pages/ProjectSubmitted';
 import Error from './pages/Error';
 
 const App = () => {
@@ -14,6 +15,7 @@ const App = () => {
       <Route path='/portfolio' element={<Portfolio/>} />
       <Route path='/blog' element={<Blog/>} />
       <Route path='/work-with-me' element={<WorkWithMe/>} />
+      <Route path='/project-submitted' element={<ProjectSubmitted/>} />
       <Route path='*' element={<Error/>}/>
     </Routes>
   )

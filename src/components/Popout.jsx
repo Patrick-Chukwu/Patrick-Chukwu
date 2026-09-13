@@ -1,6 +1,6 @@
-import React from 'react'
 import { motion } from 'framer-motion'
-import { FaMailBulk, FaWhatsapp } from 'react-icons/fa'
+import { FaWhatsapp } from 'react-icons/fa'
+import { WHATSAPP_URL } from '../constants/contact'
 
 const Popout = () => {
 
@@ -16,7 +16,7 @@ const Popout = () => {
       drag="y"
       dragConstraints={{ top:-500, bottom: 10}}
       >
-        <a href="https://wa.me/message/4GGBPY2AUFEMB1"><FaWhatsapp/></a>
+        <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp (opens in a new tab)"><FaWhatsapp/></a>
       </motion.div>
 
 
