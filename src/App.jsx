@@ -4,6 +4,7 @@ import About from './pages/About';
 import Portfolio from './pages/Portfolio';
 import Blog from './pages/Blog';
 import WorkWithMe from './pages/WorkWithMe';
+import Speaking from './pages/Speaking';
 import ProjectSubmitted from './pages/ProjectSubmitted';
 import Error from './pages/Error';
 
@@ -12,6 +13,7 @@ const App = () => {
     <Routes>
       <Route path='/' element={<Home/>} />
       <Route path='/about' element={<About/>} />
+      <Route path='/speaking' element={<Speaking/>} />
       <Route path='/portfolio' element={<Portfolio/>} />
       <Route path='/blog' element={<Blog/>} />
       <Route path='/work-with-me' element={<WorkWithMe/>} />

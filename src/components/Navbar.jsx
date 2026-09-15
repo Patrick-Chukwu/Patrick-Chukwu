@@ -18,6 +18,7 @@ const Navbar = () => {
       <div className="hidden md:flex justify-between items-center gap-4">
             <Link to="/" className='font-medium text-xl hover:text-white'>Home</Link>
             <Link to="/about" className='font-medium text-xl hover:text-white'>About</Link>
+            <Link to="/speaking" className='font-medium text-xl hover:text-white'>Speaking</Link>
         </div>
         <Link to="/"><img src={logo} className='bg-primary rounded-full size-10 hover:bg-white' alt="Chukwu Patrick Ifeanyi picture" /></Link>
         <div className="flex items-center justify-center gap-2">
@@ -67,6 +68,10 @@ const Navbar = () => {
           <Link onClick={closeMenu}
 to="/about" className="text-white font-normal text-xl block px-3 py-2 rounded-md hover:bg-primary">
             About
+          </Link>
+          <Link onClick={closeMenu}
+to="/speaking" className="text-white font-normal text-xl block px-3 py-2 rounded-md hover:bg-primary">
+            Speaking
           </Link>
           <Link onClick={closeMenu}
  to="/portfolio" className="text-white font-normal text-xl block px-3 py-2 rounded-md hover:bg-primary">
