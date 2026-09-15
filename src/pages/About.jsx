@@ -567,37 +567,7 @@ const About = () => {
           </motion.div>
         </section>
 
-        <section
-          aria-labelledby="final-cta-heading"
-          className="px-4 py-14 md:py-20 border-t border-bcolor"
-        >
-          <motion.div {...reveal} className="w-[98%] max-w-[720px] mx-auto text-left md:text-center">
-            <h2
-              id="final-cta-heading"
-              className="text-3xl md:text-4xl text-secondary font-bold"
-            >
-              Let&apos;s build something meaningful.
-            </h2>
-            <p className="text-primary text-base md:text-xl mt-5 leading-relaxed max-w-[640px] md:mx-auto">
-              Whether you want to collaborate on a product, explore a
-              partnership, invite me to speak, or simply connect, I would like
-              to hear from you.
-            </p>
-            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center md:justify-center gap-3 sm:gap-4 mt-8">
-              <Link to="/work-with-me" className={btnPrimary}>
-                Let&apos;s work together
-              </Link>
-              <Link to="/speaking" className={btnSecondary}>
-                Invite me to speak
-              </Link>
-            </div>
-            <p className="mt-6">
-              <a href="mailto:chukwupatrickify@gmail.com" className={textLink}>
-                chukwupatrickify@gmail.com
-              </a>
-            </p>
-          </motion.div>
-        </section>
+       
       </main>
 
       <Footer />
