@@ -23,7 +23,7 @@ const focusAreas = [
   },
   {
     title: 'AI & Emerging Technology',
-    copy: 'I use AI as both a product capability and a way of working — integrating intelligent features where they help, and building faster without losing care for the people who use what I ship.',
+    copy: 'I use AI as both a product capability and a way of working; integrating intelligent features where they help, and building faster without losing care for the people who use what I ship.',
   },
   {
     title: 'Education Technology',
@@ -31,14 +31,14 @@ const focusAreas = [
   },
   {
     title: 'Social Impact',
-    copy: 'I work with organizations and initiatives that use technology to solve real problems — not as a slogan, but as a way to create opportunities for people.',
+    copy: 'I work with organizations and initiatives that use technology to solve real problems: not as a slogan, but as a way to create opportunities for people.',
   },
 ]
 
 const beyondCode = [
   {
     title: 'Education',
-    copy: 'I care about making technology learning more accessible — through products, programs, and advocacy that help people grow their skills.',
+    copy: 'I care about making technology learning more accessible through products, programs, and advocacy that help people grow their skills.',
   },
   {
     title: 'Youth development',
@@ -114,7 +114,7 @@ const highlights = [
   {
     area: 'Leadership',
     title: 'Led teams and programs',
-    copy: 'Taken products and education initiatives from idea to delivery — across engineering, product, partnerships, and community.',
+    copy: 'Taken products and education initiatives from idea to delivery across engineering, product, partnerships, and community.',
   },
   {
     area: 'Speaking',
@@ -223,9 +223,7 @@ const About = () => {
 
           <p className="text-primary text-base md:text-xl mt-8 leading-relaxed max-w-[680px]">
             I am Patrick, a software engineer and product builder. My work sits at
-            the intersection of software, education, and social impact — turning
-            ideas and complex problems into simple, useful, and scalable digital
-            experiences.
+            the intersection of technology, education, and social impact.
           </p>
 
           <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 mt-8">
@@ -257,8 +255,7 @@ const About = () => {
             <div className="mt-6 space-y-5 text-primary text-base md:text-lg leading-relaxed">
               <p>
                 I enjoy making complicated things feel simple. Software engineering
-                became a major part of my work because it is how I take an idea —
-                or a messy problem — and turn it into something people can use.
+                became a major part of my work because it is how I take an idea and turn it into something people can use.
               </p>
               <p>
                 Over time, education and social impact became just as important.
@@ -337,7 +334,7 @@ const About = () => {
               <p>
                 Biuda is an EdTech company helping children and teenagers develop
                 the technology skills they need to become the next generation of
-                innovators — through training, mentorship, and opportunities.
+                innovators through training, mentorship, and opportunities.
               </p>
               <p>
                 Too many young people grow up around technology without a clear
@@ -416,7 +413,7 @@ const About = () => {
             </h2>
             <div className="mt-6 space-y-5 text-primary text-base md:text-lg leading-relaxed">
               <p>
-                I speak about technology and the people it is supposed to serve —
+                I speak about technology and the people it is supposed to serve;
                 especially where software, education, and opportunity meet.
               </p>
               <p>
@@ -511,7 +508,7 @@ const About = () => {
                 A few things I&apos;ve done
               </h2>
               <p className="text-primary text-base md:text-lg mt-4 leading-relaxed">
-                Milestones that show the range of the work — not a complete CV.
+                Milestones that show the range of the work
               </p>
             </motion.div>
 
