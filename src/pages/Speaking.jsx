@@ -390,11 +390,7 @@ const Speaking = () => {
                       ? 'Preparing…'
                       : 'Download selected photo'}
               </button>
-              <p className="text-primary text-sm">
-                Additional approved photos can be added as{' '}
-                <span className="text-secondary">patrick-chukwu-speaker-02</span> and{' '}
-                <span className="text-secondary">patrick-chukwu-speaker-03</span>.
-              </p>
+
             </div>
           </div>
         </section>
@@ -413,8 +409,7 @@ const Speaking = () => {
               </h2>
               <p className="text-primary text-base md:text-lg mt-4 leading-relaxed">
                 These are the conversations I am prepared for. Each one comes
-                from building products and working in education — not from a
-                generic speaker brief.
+                from building products and working in education 
               </p>
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10 mt-12">
@@ -448,7 +443,7 @@ const Speaking = () => {
             </h2>
             <p className="text-primary text-base md:text-lg mt-4 leading-relaxed">
               I am comfortable in rooms of students, builders, educators and
-              operators — anyone trying to use technology to create opportunity.
+              operators : anyone trying to use technology to create opportunity.
             </p>
             <ul className="mt-8 flex flex-wrap gap-2">
               {audiences.map((audience) => (
