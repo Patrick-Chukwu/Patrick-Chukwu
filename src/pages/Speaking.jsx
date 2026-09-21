@@ -199,7 +199,7 @@ const Speaking = () => {
             Software Engineer, Product Builder &amp; Speaker
           </p>
           <p className="text-primary text-base md:text-xl mt-6 leading-relaxed max-w-[680px]">
-            I speak about technology, AI, education and entrepreneurship — and
+            I speak about technology, AI, education, entrepreneurship  and
             the opportunities they create for Africa&apos;s next generation.
             Invite me when you want a practitioner who builds products, not only
             someone who talks about them.
@@ -308,8 +308,7 @@ const Speaking = () => {
                 Speaker photos
               </h2>
               <p className="text-primary text-base md:text-lg mt-4 leading-relaxed">
-                Approved images for flyers, websites and social graphics. Select
-                a photo, then download the original file — not a thumbnail.
+                Approved images for flyers, websites and social graphics.
               </p>
             </motion.div>
 
@@ -506,10 +505,7 @@ const Speaking = () => {
               >
                 Context, not a CV
               </h2>
-              <p className="text-primary text-base md:text-lg mt-4 leading-relaxed">
-                Enough background to brief a host or a moderator — without
-                invented events or numbers.
-              </p>
+
             </motion.div>
             <ol className="relative mt-12 border-l border-bcolor ml-1 md:ml-2">
               {credentials.map((item) => (
