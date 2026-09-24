@@ -37,7 +37,7 @@ const ImageSlider = () => {
   }, []);
 
   return (
-    <div className="relative w-[95%] sm:w-[80%]  mx-auto h-full overflow-hidden p-4 opacity-40 hover:opacity-90  focus:opacity-90">
+    <div className="relative w-[95%] sm:w-[80%]  mx-auto h-full overflow-hidden p-4 opacity-100 hover:opacity-50  focus:opacity-50">
       {images.map((image, index) => (
         <img
           key={index}

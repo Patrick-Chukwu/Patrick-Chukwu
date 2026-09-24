@@ -196,7 +196,7 @@ const Speaking = () => {
             Patrick Chukwu
           </h1>
           <p className="text-primary text-xl sm:text-2xl md:text-3xl font-semibold mt-3">
-            Software Engineer, Product Builder &amp; Speaker
+            CEO, Biuda
           </p>
           <p className="text-primary text-base md:text-xl mt-6 leading-relaxed max-w-[680px]">
             I speak about technology, AI, education, entrepreneurship  and
