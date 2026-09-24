@@ -201,8 +201,6 @@ const Speaking = () => {
           <p className="text-primary text-base md:text-xl mt-6 leading-relaxed max-w-[680px]">
             I speak about technology, AI, education, entrepreneurship  and
             the opportunities they create for Africa&apos;s next generation.
-            Invite me when you want a practitioner who builds products, not only
-            someone who talks about them.
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 mt-8">
             <a href={SPEAKING_MAIL} className={btnPrimary}>
