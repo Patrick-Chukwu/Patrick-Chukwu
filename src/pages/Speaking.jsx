@@ -36,7 +36,7 @@ const jsonLd = {
   '@type': 'Person',
   name: 'Chukwu Patrick Ifeanyi',
   alternateName: ['Patrick Chukwu', 'Patrick Ifeanyi Chukwu', 'Patrick'],
-  jobTitle: 'Software Engineer, Product Builder & Speaker',
+  jobTitle: 'CEO, Biuda',
   description: PAGE_DESCRIPTION,
   email: CONTACT_MAIL,
   nationality: 'Nigerian',
