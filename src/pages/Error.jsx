@@ -7,6 +7,7 @@ const Error = () => {
         <Navbar/>
         <div className='flex flex-col items-center justify-center h-[80vh]'> 
         <h2 className='text-3xl font-bold text-primary'>Sorry, page not found!</h2>
+        <p>Click my picture above to go back to homepage</p>
         </div>
         </div>
   )
