@@ -1,21 +1,18 @@
 [![Typing SVG](https://readme-typing-svg.demolab.com/?lines=Hi+there!+I+am+Patrick)](https://git.io/typing-svg)
 
-
-# Hi, I'm Patrick Chukwu 👋
-
 ### Software Engineer | Product Builder | Founder
 
 I build digital products that solve real problems, with a particular interest in software engineering, education, AI, and interactive learning.
 
-I'm a founder and engineer working on products that make learning more accessible, engaging, and fun for children and young people.
+I'm an engineer working on products that make learning more accessible, engaging, and fun for children and young people.
 
-### 🚀 What I'm Building
+###  What I'm Building
 - 🧑🏽‍💻 **[Biuda](https://www.biudahq.com/)** — An EdTech company focused on helping children and teenagers develop technology and STEM skills.
 - 🌍 **[Highfrica](https://www.highfrica.com/)** — A learning and play platform for children, supporting academic learning and helping schools, teachers, and parents improve how children learn.
 - 🍬 **[CandyLearn](https://candy.highfrica.com/)** — An offline-capable platformer game that helps children learn words, sounds, and letters through play.
 - ⚔️ **[Battleverse](https://battle.highfrica.com/)** — A real-time, offline-first knowledge-gaming platform where people compete in knowledge battles across multiple categories. It also supports CBT exam preparation.
 
-### 💻 Engineering & Product Interests
+###  Engineering & Product Interests
 
 - Frontend and full-stack software development
 - Building useful, user-focused digital products
@@ -24,15 +21,15 @@ I'm a founder and engineer working on products that make learning more accessibl
 - AI-powered products and practical AI integration
 - Product design, development, and iteration
 
-### 🛠️ Technologies
+###  Technologies
 
-**Languages:** JavaScript, TypeScript, Python  
+**Languages:** JavaScript, TypeScript, Python, Go,  
 **Frontend:** React, Next.js, Vue.js, HTML, CSS, Tailwind CSS  
 **Backend:** Node.js, Express.js, REST APIs  
 **Databases:** MySQL, MongoDB  
 **Tools:** Git, GitHub, Linux
 
-### 🌱 Beyond the Code
+### Beyond the Code
 
 I've worked across different industries as a software engineer and product manager. I enjoy understanding the problem behind a product, figuring out what users need, and turning ideas into working software.
 
