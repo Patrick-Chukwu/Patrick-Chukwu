@@ -39,7 +39,8 @@ I believe good software should do more than work. It should make something bette
 
 Let's connect to explore how my experience and skills can add value to your next project or organization.
 Get in touch:
-  - chukwupatrickify@gmail.com
+  - **Website:** [patrick.highfrica.com](https://patrick.highfrica.com/)
+  - **Mail:** chukwupatrickify@gmail.com
 
 
 [![Patrick's GitHub stats](https://github-readme-stats.vercel.app/api?username=Patrick-Chukwu)](https://github.com/Patrick-Chukwu/github-readme-stats)
@@ -47,7 +48,6 @@ Get in touch:
 
 
 ## 🤝 Connect, Follow, Subscribe or Send a message:
-- 🌐 **Portfolio:** [patrick.highfrica.com](https://patrick.highfrica.com/)
 [![Linkedin](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/patrick-chukwu/)
 [![Twitter](https://img.shields.io/badge/Twitter-0077B5?style=for-the-badge&logo=Twitter&logoColor=white)](https://www.twitter.com/pattyfean)
 
