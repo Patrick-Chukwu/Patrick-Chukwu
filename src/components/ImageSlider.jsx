@@ -10,20 +10,30 @@ import mobile2 from '../assets/Projectts/mobile2.webp'
 import mobile3 from '../assets/Projectts/mobile3.webp'
 import mobile4 from '../assets/Projectts/mobile4.webp'
 import mobile5 from '../assets/Projectts/mobile5.webp'
+import battle from '../assets/Projectts/battleverse.png'
+import battlem from '../assets/Projectts/battlemobile.png'
+import candy from '../assets/Projectts/candylearn.png'
+import candym from '../assets/Projectts/candymobile.png'
+
+
 
 const images = [
   project1,
   project2,
   project3,
   project4,
-  project5
+  project5,
+  battle,
+  candy
 ];
 const mobiles = [
   mobile1,
   mobile2,
   mobile3,
   mobile4,
-  mobile5
+  mobile5,
+  battlem,
+  candym
 ];
 
 const ImageSlider = () => {

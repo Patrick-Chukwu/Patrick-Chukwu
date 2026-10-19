@@ -18,4 +18,14 @@ module.exports = {
       { allowConstantExport: true },
     ],
   },
+  overrides: [
+    {
+      files: ['server/**/*.js', 'scripts/**/*.js', 'shared/**/*.test.js'],
+      env: { node: true, browser: false },
+    },
+    {
+      files: ['src/billing/**/*.{js,jsx}'],
+      rules: { 'react/prop-types': 'off' },
+    },
+  ],
 }

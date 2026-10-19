@@ -1,12 +1,29 @@
 import { motion } from 'framer-motion'
 import project1 from "../assets/Projectts/project1.webp"
-import project2 from "../assets/Projectts/project2.webp"
+import project2 from "../assets/Projectts/banka.png"
 import project3 from "../assets/Projectts/project3.webp"
 import project4 from "../assets/Projectts/project4.webp"
 import timbucloud from "../assets/Projectts/timbucloud.webp"
-import integreated from "../assets/Projectts/integreated.webp"
+import integreated from "../assets/Projectts/integreated.png"
+import battle from '../assets/Projectts/battleverse.png'
+import candy from '../assets/Projectts/candylearn.png'
 
 const projectList = [
+  {
+    name: "Battleverse",
+    description: "A knowledge-based game that allows users to test their knowledge in various categories. Developed a web application for a gaming platform.",
+    href: "https://www.battle.highfrica.com/",
+    image: battle,
+    alt: "Battleverse ",
+  },
+    {
+    name: "Candylearn",
+    description: "A platformer game for children to learn words, sounds and more.",
+    href: "https://www.candy.highfrica.com/",
+    image: candy,
+    alt: "candylearn ",
+  },
+
   {
     name: "Highfrica Academy",
     description: "Developed a web application for an edtech. ",

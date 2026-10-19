@@ -25,3 +25,9 @@ body {
     50% {width: 100%;}
     100% {width: 0%;}
 }
+
+@media print {
+    body { background: white; color: black; }
+    .no-print { display: none !important; }
+    .print-sheet { box-shadow: none; }
+}

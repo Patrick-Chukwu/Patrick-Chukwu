@@ -7,15 +7,19 @@
     "node": "24.x"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/dev.mjs",
+    "start": "node server/index.js",
     "build": "vite build",
+    "test": "node --test shared/*.test.js server/*.test.js",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "build:css": "npx tailwindcss -i ./src/index.css -o ./dist/index.css"
   },
   "dependencies": {
     "autoprefixer": "^10.4.19",
+    "express": "^4.22.3",
     "framer-motion": "^11.2.12",
+    "pdfkit": "^0.20.2",
     "postcss": "^8.4.38",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
