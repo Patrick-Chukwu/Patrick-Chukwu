@@ -17,12 +17,16 @@ function parsePayload(text) {
   }
 }
 
+// Developer-only hint. `import.meta.env.DEV` is false in production builds, so the public site never shows it.
+const DEV_HINT = import.meta.env.DEV ? ' In development, start the project with npm run dev.' : ''
+
+export const SIGNED_OUT_EVENT = 'billing:signed-out'
+
 function failureMessage(response, text) {
   const looksLikePage = /<!doctype html|<html/i.test(text || '')
-  if (response.status === 405 || looksLikePage) {
-    return 'Billing sign-in does not run on the public website. Start the project with npm run dev, open http://localhost:5173/billing, and use the password from BILLING_ADMIN_PASSWORD.'
+  if (response.status === 405 || response.status === 404 || looksLikePage) {
+    return `The billing service is not reachable right now. Try again shortly.${DEV_HINT}`
   }
-  if (!response.status) return 'The billing API is not running. Start it with npm run dev.'
   return `Billing could not complete that request (HTTP ${response.status}).`
 }
 
@@ -39,11 +43,14 @@ export async function api(path, options = {}) {
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
     })
   } catch {
-    throw new ApiError(0, { error: 'The billing API is not running. Start it with npm run dev.', code: 'OFFLINE' })
+    throw new ApiError(0, { error: `Could not reach the billing service. Check your connection and try again.${DEV_HINT}`, code: 'OFFLINE' })
   }
   if (response.status === 204) return null
   const text = await response.text()
   const payload = parsePayload(text)
+  if (response.status === 401 && payload?.code === 'UNAUTHENTICATED' && !path.endsWith('/login') && typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(SIGNED_OUT_EVENT))
+  }
   if (!response.ok || (payload === null && text)) {
     throw new ApiError(response.status, {
       error: payload?.error || failureMessage(response, text),

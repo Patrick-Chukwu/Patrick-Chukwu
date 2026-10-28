@@ -1,5 +1,4 @@
-import fs from 'node:fs'
-import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import PDFDocument from 'pdfkit'
 import { STATUS_LABELS } from '../shared/branding.js'
 import { formatIsoDate } from '../shared/dates.js'
@@ -9,14 +8,17 @@ const INK = '#191a1c'
 const MUTED = '#564E4E'
 const HAIR = '#d5d8de'
 const BAND = '#E9EFFD'
-const regularFont = path.join(import.meta.dirname, 'fonts', 'NotoSans-Regular.ttf')
-const boldFont = path.join(import.meta.dirname, 'fonts', 'NotoSans-Bold.ttf')
+// Literal URLs let Vercel's file tracing bundle the fonts with the function.
+const regularFont = fileURLToPath(new URL('./fonts/NotoSans-Regular.ttf', import.meta.url))
+const boldFont = fileURLToPath(new URL('./fonts/NotoSans-Bold.ttf', import.meta.url))
 
 function renderPdf(draw, info, compress) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
       size: 'A4',
       compress,
+      // Starting from a bundled TTF means pdfkit never loads its built-in Helvetica metrics from disk.
+      font: regularFont,
       bufferPages: true,
       margins: { top: 48, bottom: 56, left: 48, right: 48 },
       info,
@@ -110,9 +112,9 @@ export function renderInvoicePdf(model, { compress = true } = {}) {
       return drawTableHeader(top + 18)
     }
 
-    if (model.logoPath && fs.existsSync(model.logoPath)) {
+    if (model.logo) {
       try {
-        doc.image(model.logoPath, left, y, { fit: [52, 52] })
+        doc.image(model.logo, left, y, { fit: [52, 52] })
       } catch {
         // A missing or unreadable logo should not block the document.
       }
@@ -284,9 +286,9 @@ export function renderReceiptPdf(receipt, { compress = true } = {}) {
     const left = 48
     const width = doc.page.width - 96
     let y = 32
-    if (receipt.logoPath && fs.existsSync(receipt.logoPath)) {
+    if (receipt.logo) {
       try {
-        doc.image(receipt.logoPath, left, y, { fit: [52, 52] })
+        doc.image(receipt.logo, left, y, { fit: [52, 52] })
       } catch {
         // Keep the receipt readable even if the logo file cannot be embedded.
       }

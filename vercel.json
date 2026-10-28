@@ -1,10 +1,14 @@
 {
-    "rewrites": [
-      {
-        "source": "/(.*)",
-        "destination": "/"
-      }
-    ]
-
-  }
-  
+  "functions": {
+    "api/billing/[...path].js": {
+      "maxDuration": 30,
+      "includeFiles": "server/migrations/**"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

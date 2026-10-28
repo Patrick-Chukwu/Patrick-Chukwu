@@ -91,8 +91,8 @@ function percentField(value) {
   }
 }
 
-function audit(db, entry) {
-  db.prepare(`INSERT INTO audit_events (
+async function audit(db, entry) {
+  await db.prepare(`INSERT INTO audit_events (
     id, entity_type, entity_id, action, summary, metadata_json, created_at
   ) VALUES (?, ?, ?, ?, ?, ?, ?)`).run(
     randomUUID(),
@@ -105,12 +105,12 @@ function audit(db, entry) {
   )
 }
 
-function settingsRow(db) {
-  return db.prepare('SELECT * FROM issuer_settings WHERE id = 1').get()
+async function settingsRow(db) {
+  return await db.prepare('SELECT * FROM issuer_settings WHERE id = 1').get()
 }
 
-export function getSettings(db) {
-  const row = settingsRow(db)
+export async function getSettings(db) {
+  const row = await settingsRow(db)
   return {
     professionalName: row.professional_name,
     businessName: row.business_name,
@@ -143,8 +143,54 @@ function sniffImage(buffer) {
   return ''
 }
 
-export function updateSettings(db, dataRoot, body) {
-  const current = settingsRow(db)
+function contentTypeFor(filePath) {
+  const ext = path.extname(filePath).toLowerCase()
+  if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg'
+  return 'image/png'
+}
+
+function toBuffer(value) {
+  if (!value) return null
+  if (Buffer.isBuffer(value)) return value
+  if (value instanceof ArrayBuffer) return Buffer.from(value)
+  return Buffer.from(value.buffer, value.byteOffset, value.byteLength)
+}
+
+// Logos live in the database (`document_assets`). Files written by the earlier
+// disk-based version are still read when a data directory is available.
+async function readAsset(db, dataRoot, key) {
+  if (!key) return null
+  const row = await db.prepare('SELECT content_type, data FROM document_assets WHERE key = ?').get(key)
+  if (row) return { buffer: toBuffer(row.data), contentType: row.content_type }
+  if (!dataRoot) return null
+  try {
+    const resolved = safeDataPath(dataRoot, key)
+    if (fs.existsSync(resolved)) return { buffer: fs.readFileSync(resolved), contentType: contentTypeFor(resolved) }
+  } catch {
+    return null
+  }
+  return null
+}
+
+async function writeAsset(db, key, buffer, contentType) {
+  await db.prepare(`INSERT INTO document_assets (key, content_type, data, created_at) VALUES (?, ?, ?, ?)
+    ON CONFLICT(key) DO UPDATE SET content_type = excluded.content_type, data = excluded.data, created_at = excluded.created_at`)
+    .run(key, contentType, buffer, nowIso())
+}
+
+async function deleteAsset(db, dataRoot, key) {
+  if (!key) return
+  await db.prepare('DELETE FROM document_assets WHERE key = ?').run(key)
+  if (!dataRoot) return
+  try {
+    const resolved = safeDataPath(dataRoot, key)
+    if (fs.existsSync(resolved)) fs.unlinkSync(resolved)
+  } catch {
+    // A legacy file that cannot be removed does not block the update.
+  }
+}
+
+export async function updateSettings(db, dataRoot, body) {
   const professionalName = clip(body?.professionalName, 200, 'Professional name') || PROFESSIONAL_NAME
   const businessName = clip(body?.businessName, 200, 'Business name')
   const email = emailOrEmpty(body?.email)
@@ -153,14 +199,7 @@ export function updateSettings(db, dataRoot, body) {
   const paymentInstructions = clip(body?.paymentInstructions, 2000, 'Payment instructions')
   const defaultTerms = clip(body?.defaultTerms, 4000, 'Default terms')
   const defaultNotes = clip(body?.defaultNotes, 4000, 'Default notes')
-  let logoFile = current.logo_file
-  if (body?.clearLogo) {
-    if (logoFile) {
-      const existing = safeDataPath(dataRoot, logoFile)
-      if (fs.existsSync(existing)) fs.unlinkSync(existing)
-    }
-    logoFile = ''
-  }
+  let upload = null
   if (typeof body?.logoBase64 === 'string' && body.logoBase64) {
     const match = /^data:image\/(?:png|jpeg|jpg);base64,([a-z0-9+/=\s]+)$/i.exec(body.logoBase64.trim())
     if (!match) throw new HttpError(400, 'Upload a PNG or JPEG logo', 'VALIDATION')
@@ -170,60 +209,57 @@ export function updateSettings(db, dataRoot, body) {
     }
     const kind = sniffImage(buffer)
     if (!kind) throw new HttpError(400, 'Upload a PNG or JPEG logo', 'VALIDATION')
-    const relative = `logos/issuer.${kind === 'jpg' ? 'jpg' : 'png'}`
-    const destination = safeDataPath(dataRoot, relative)
-    fs.mkdirSync(path.dirname(destination), { recursive: true })
-    fs.writeFileSync(destination, buffer)
-    if (logoFile && logoFile !== relative) {
-      const previous = safeDataPath(dataRoot, logoFile)
-      if (fs.existsSync(previous)) fs.unlinkSync(previous)
-    }
-    logoFile = relative
+    upload = { buffer, kind }
   }
-  db.prepare(`UPDATE issuer_settings SET
-    professional_name = ?, business_name = ?, email = ?, phone = ?, address = ?,
-    payment_instructions = ?, default_terms = ?, default_notes = ?, logo_file = ?, updated_at = ?
-    WHERE id = 1`).run(
-    professionalName, businessName, email, phone, address,
-    paymentInstructions, defaultTerms, defaultNotes, logoFile, nowIso(),
-  )
-  audit(db, {
-    entityType: 'settings',
-    entityId: 'issuer',
-    action: 'settings.updated',
-    summary: 'Updated invoice settings',
+  await withTransaction(db, async (db) => {
+    const current = await settingsRow(db)
+    let logoFile = current.logo_file
+    if (body?.clearLogo && logoFile) {
+      await deleteAsset(db, dataRoot, logoFile)
+      logoFile = ''
+    }
+    if (upload) {
+      const relative = `logos/issuer.${upload.kind === 'jpg' ? 'jpg' : 'png'}`
+      await writeAsset(db, relative, upload.buffer, upload.kind === 'jpg' ? 'image/jpeg' : 'image/png')
+      if (logoFile && logoFile !== relative) await deleteAsset(db, dataRoot, logoFile)
+      logoFile = relative
+    }
+    await db.prepare(`UPDATE issuer_settings SET
+      professional_name = ?, business_name = ?, email = ?, phone = ?, address = ?,
+      payment_instructions = ?, default_terms = ?, default_notes = ?, logo_file = ?, updated_at = ?
+      WHERE id = 1`).run(
+      professionalName, businessName, email, phone, address,
+      paymentInstructions, defaultTerms, defaultNotes, logoFile, nowIso(),
+    )
+    await audit(db, {
+      entityType: 'settings',
+      entityId: 'issuer',
+      action: 'settings.updated',
+      summary: 'Updated invoice settings',
+    })
   })
   return getSettings(db)
 }
 
-export function currentLogoAbsolute(db, dataRoot, portfolioLogo) {
-  const row = settingsRow(db)
-  if (row.logo_file) {
-    const resolved = safeDataPath(dataRoot, row.logo_file)
-    if (fs.existsSync(resolved)) return resolved
-  }
-  return portfolioLogo
+function readPortfolioLogo(portfolioLogo) {
+  if (!portfolioLogo || !fs.existsSync(portfolioLogo)) return null
+  return { buffer: fs.readFileSync(portfolioLogo), contentType: contentTypeFor(portfolioLogo) }
 }
 
-export function invoiceLogoAbsolute(db, dataRoot, portfolioLogo, id) {
-  const row = mustRow(db, id)
+export async function currentLogo(db, dataRoot, portfolioLogo) {
+  const row = await settingsRow(db)
+  const custom = await readAsset(db, dataRoot, row.logo_file)
+  return custom || readPortfolioLogo(portfolioLogo)
+}
+
+export async function invoiceLogo(db, dataRoot, portfolioLogo, id) {
+  const row = await mustRow(db, id)
   const issuer = readJson(row.issuer_snapshot_json, {})
   if (row.lifecycle !== 'draft' && issuer.logoFile) {
-    const resolved = safeDataPath(dataRoot, issuer.logoFile)
-    if (fs.existsSync(resolved)) return resolved
+    const frozen = await readAsset(db, dataRoot, issuer.logoFile)
+    if (frozen) return frozen
   }
-  return currentLogoAbsolute(db, dataRoot, portfolioLogo)
-}
-
-function contentTypeFor(filePath) {
-  const ext = path.extname(filePath).toLowerCase()
-  if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg'
-  return 'image/png'
-}
-
-export function readLogoFile(filePath) {
-  if (!filePath || !fs.existsSync(filePath)) return null
-  return { buffer: fs.readFileSync(filePath), contentType: contentTypeFor(filePath) }
+  return currentLogo(db, dataRoot, portfolioLogo)
 }
 
 function clientFields(source, required = false) {
@@ -251,18 +287,18 @@ function mapClient(row) {
   }
 }
 
-export function listClients(db) {
-  return db.prepare('SELECT * FROM clients ORDER BY business_name COLLATE NOCASE').all().map(mapClient)
+export async function listClients(db) {
+  return (await db.prepare('SELECT * FROM clients ORDER BY business_name COLLATE NOCASE').all()).map(mapClient)
 }
 
-export function getClient(db, id) {
-  const row = db.prepare('SELECT * FROM clients WHERE id = ?').get(id)
+export async function getClient(db, id) {
+  const row = await db.prepare('SELECT * FROM clients WHERE id = ?').get(id)
   if (!row) throw new HttpError(404, 'Client not found', 'NOT_FOUND')
   return mapClient(row)
 }
 
-function writeClient(db, id, fields) {
-  db.prepare(`UPDATE clients SET
+async function writeClient(db, id, fields) {
+  await db.prepare(`UPDATE clients SET
     business_name = ?, contact_person = ?, email = ?, phone = ?, billing_address = ?, tax_details = ?, updated_at = ?
     WHERE id = ?`).run(
     fields.businessName, fields.contactPerson, fields.email, fields.phone,
@@ -270,26 +306,26 @@ function writeClient(db, id, fields) {
   )
 }
 
-export function createClient(db, body) {
+export async function createClient(db, body) {
   const fields = clientFields(body, true)
   const id = randomUUID()
   const stamp = nowIso()
-  db.prepare(`INSERT INTO clients (
+  await db.prepare(`INSERT INTO clients (
     id, business_name, contact_person, email, phone, billing_address, tax_details, created_at, updated_at
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
     id, fields.businessName, fields.contactPerson, fields.email, fields.phone,
     fields.billingAddress, fields.taxDetails, stamp, stamp,
   )
-  audit(db, { entityType: 'client', entityId: id, action: 'client.created', summary: `Saved client ${fields.businessName}`, metadata: { clientId: id } })
-  return getClient(db, id)
+  await audit(db, { entityType: 'client', entityId: id, action: 'client.created', summary: `Saved client ${fields.businessName}`, metadata: { clientId: id } })
+  return await getClient(db, id)
 }
 
-export function updateClient(db, id, body) {
-  getClient(db, id)
+export async function updateClient(db, id, body) {
+  await getClient(db, id)
   const fields = clientFields(body, true)
-  writeClient(db, id, fields)
-  audit(db, { entityType: 'client', entityId: id, action: 'client.updated', summary: `Updated client ${fields.businessName}`, metadata: { clientId: id } })
-  return getClient(db, id)
+  await writeClient(db, id, fields)
+  await audit(db, { entityType: 'client', entityId: id, action: 'client.updated', summary: `Updated client ${fields.businessName}`, metadata: { clientId: id } })
+  return await getClient(db, id)
 }
 
 function mapProject(row) {
@@ -303,46 +339,46 @@ function mapProject(row) {
   }
 }
 
-export function listProjects(db, clientId) {
+export async function listProjects(db, clientId) {
   const rows = clientId
-    ? db.prepare('SELECT * FROM projects WHERE client_id = ? OR client_id IS NULL ORDER BY title COLLATE NOCASE').all(clientId)
-    : db.prepare('SELECT * FROM projects ORDER BY title COLLATE NOCASE').all()
+    ? await db.prepare('SELECT * FROM projects WHERE client_id = ? OR client_id IS NULL ORDER BY title COLLATE NOCASE').all(clientId)
+    : await db.prepare('SELECT * FROM projects ORDER BY title COLLATE NOCASE').all()
   return rows.map(mapProject)
 }
 
-function persistClientChoice(db, clientId, fields, save) {
+async function persistClientChoice(db, clientId, fields, save) {
   if (clientId) {
-    const existing = db.prepare('SELECT id FROM clients WHERE id = ?').get(clientId)
+    const existing = await db.prepare('SELECT id FROM clients WHERE id = ?').get(clientId)
     if (!existing) throw new HttpError(400, 'Choose a saved client', 'VALIDATION')
   }
   if (!save) return clientId || null
   if (!fields.businessName) throw new HttpError(400, 'Client name is required to save a client', 'VALIDATION')
   if (clientId) {
-    writeClient(db, clientId, fields)
-    audit(db, { entityType: 'client', entityId: clientId, action: 'client.updated', summary: `Updated client ${fields.businessName}`, metadata: { clientId } })
+    await writeClient(db, clientId, fields)
+    await audit(db, { entityType: 'client', entityId: clientId, action: 'client.updated', summary: `Updated client ${fields.businessName}`, metadata: { clientId } })
     return clientId
   }
-  return createClient(db, fields).id
+  return (await createClient(db, fields)).id
 }
 
-function persistProjectChoice(db, projectId, clientId, title, description, save) {
+async function persistProjectChoice(db, projectId, clientId, title, description, save) {
   if (projectId) {
-    const existing = db.prepare('SELECT id FROM projects WHERE id = ?').get(projectId)
+    const existing = await db.prepare('SELECT id FROM projects WHERE id = ?').get(projectId)
     if (!existing) throw new HttpError(400, 'Choose a saved project', 'VALIDATION')
   }
   if (!save) return projectId || null
   if (!title) throw new HttpError(400, 'Project title is required to save a project', 'VALIDATION')
   if (projectId) {
-    db.prepare('UPDATE projects SET client_id = ?, title = ?, description = ?, updated_at = ? WHERE id = ?')
+    await db.prepare('UPDATE projects SET client_id = ?, title = ?, description = ?, updated_at = ? WHERE id = ?')
       .run(clientId, title, description, nowIso(), projectId)
-    audit(db, { entityType: 'project', entityId: projectId, action: 'project.updated', summary: `Updated project ${title}`, metadata: { projectId, clientId } })
+    await audit(db, { entityType: 'project', entityId: projectId, action: 'project.updated', summary: `Updated project ${title}`, metadata: { projectId, clientId } })
     return projectId
   }
   const id = randomUUID()
   const stamp = nowIso()
-  db.prepare('INSERT INTO projects (id, client_id, title, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)')
+  await db.prepare('INSERT INTO projects (id, client_id, title, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)')
     .run(id, clientId, title, description, stamp, stamp)
-  audit(db, { entityType: 'project', entityId: id, action: 'project.created', summary: `Saved project ${title}`, metadata: { projectId: id, clientId } })
+  await audit(db, { entityType: 'project', entityId: id, action: 'project.created', summary: `Saved project ${title}`, metadata: { projectId: id, clientId } })
   return id
 }
 
@@ -427,24 +463,24 @@ function issuerInput(body, settings) {
   }
 }
 
-function replaceChildren(db, invoiceId, lines, milestones) {
-  db.prepare('DELETE FROM invoice_lines WHERE invoice_id = ?').run(invoiceId)
-  db.prepare('DELETE FROM invoice_milestones WHERE invoice_id = ?').run(invoiceId)
+async function replaceChildren(db, invoiceId, lines, milestones) {
+  await db.prepare('DELETE FROM invoice_lines WHERE invoice_id = ?').run(invoiceId)
+  await db.prepare('DELETE FROM invoice_milestones WHERE invoice_id = ?').run(invoiceId)
   const insertLine = db.prepare(`INSERT INTO invoice_lines (
     id, invoice_id, position, description, quantity_milli, unit_price_minor, line_total_minor
   ) VALUES (?, ?, ?, ?, ?, ?, ?)`)
-  lines.forEach((line, index) => {
-    insertLine.run(randomUUID(), invoiceId, index, line.description, line.quantityMilli, line.unitPriceMinor, line.lineTotalMinor)
-  })
+  for (const [index, line] of lines.entries()) {
+    await insertLine.run(randomUUID(), invoiceId, index, line.description, line.quantityMilli, line.unitPriceMinor, line.lineTotalMinor)
+  }
   const insertMilestone = db.prepare(`INSERT INTO invoice_milestones (
     id, invoice_id, position, description, trigger_label, percent_bps, amount_minor, rounding_adjustment_minor
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
-  milestones.forEach((item, index) => {
-    insertMilestone.run(
+  for (const [index, item] of milestones.entries()) {
+    await insertMilestone.run(
       randomUUID(), invoiceId, index, item.description, item.trigger,
       item.percentBps, item.amountMinor, item.roundingAdjustmentMinor || 0,
     )
-  })
+  }
 }
 
 function invoiceMetadata(row, extra = {}) {
@@ -457,22 +493,22 @@ function invoiceMetadata(row, extra = {}) {
   }
 }
 
-function nextInvoiceNumber(db) {
+async function nextInvoiceNumber(db) {
   const year = new Date().getFullYear()
-  const row = db.prepare('SELECT COALESCE(MAX(doc_seq), 0) AS seq FROM invoices WHERE doc_year = ?').get(year)
+  const row = await db.prepare('SELECT COALESCE(MAX(doc_seq), 0) AS seq FROM invoices WHERE doc_year = ?').get(year)
   const seq = Number(row.seq) + 1
   return { year, seq, number: formatDocumentNumber('INV', year, seq) }
 }
 
-function nextReceiptNumber(db) {
+async function nextReceiptNumber(db) {
   const year = new Date().getFullYear()
-  const row = db.prepare('SELECT COALESCE(MAX(doc_seq), 0) AS seq FROM receipts WHERE doc_year = ?').get(year)
+  const row = await db.prepare('SELECT COALESCE(MAX(doc_seq), 0) AS seq FROM receipts WHERE doc_year = ?').get(year)
   const seq = Number(row.seq) + 1
   return { year, seq, number: formatDocumentNumber('RCT', year, seq) }
 }
 
-function collectInvoiceBody(db, body) {
-  const settings = settingsRow(db)
+async function collectInvoiceBody(db, body) {
+  const settings = await settingsRow(db)
   const fields = clientFields(body?.client)
   const lines = parseLines(body?.lines)
   const discountMinor = moneyField(body?.discount, 'Discount')
@@ -555,9 +591,9 @@ function toListItem(row, today) {
   }
 }
 
-function queryInvoices(db, filters = {}) {
+async function queryInvoices(db, filters = {}) {
   const today = filters.today || todayISO()
-  let items = db.prepare(`${LIST_SQL} ORDER BY i.created_at DESC`).all().map((row) => toListItem(row, today))
+  let items = (await db.prepare(`${LIST_SQL} ORDER BY i.created_at DESC`).all()).map((row) => toListItem(row, today))
   if (filters.clientId) items = items.filter((item) => item.clientId === filters.clientId)
   if (filters.projectId) items = items.filter((item) => item.projectId === filters.projectId)
   if (filters.from) items = items.filter((item) => item.issueDate && item.issueDate >= filters.from)
@@ -595,27 +631,27 @@ function sortItems(items, sort = 'issue_date', direction = 'desc') {
   })
 }
 
-export function listInvoices(db, query) {
+export async function listInvoices(db, query) {
   const page = Math.max(1, Number.parseInt(query.page, 10) || 1)
   const pageSize = Math.min(50, Math.max(1, Number.parseInt(query.pageSize, 10) || 20))
   const direction = query.dir === 'asc' ? 'asc' : 'desc'
-  const items = sortItems(queryInvoices(db, query), query.sort, direction)
+  const items = sortItems(await queryInvoices(db, query), query.sort, direction)
   const start = (page - 1) * pageSize
   return { items: items.slice(start, start + pageSize), page, pageSize, total: items.length }
 }
 
-function mustRow(db, id) {
-  const row = db.prepare('SELECT * FROM invoices WHERE id = ?').get(id)
+async function mustRow(db, id) {
+  const row = await db.prepare('SELECT * FROM invoices WHERE id = ?').get(id)
   if (!row) throw new HttpError(404, 'Invoice not found', 'NOT_FOUND')
   return row
 }
 
-function linesOf(db, invoiceId) {
-  return db.prepare('SELECT * FROM invoice_lines WHERE invoice_id = ? ORDER BY position').all(invoiceId)
+async function linesOf(db, invoiceId) {
+  return await db.prepare('SELECT * FROM invoice_lines WHERE invoice_id = ? ORDER BY position').all(invoiceId)
 }
 
-function milestonesOf(db, invoiceId) {
-  return db.prepare('SELECT * FROM invoice_milestones WHERE invoice_id = ? ORDER BY position').all(invoiceId)
+async function milestonesOf(db, invoiceId) {
+  return await db.prepare('SELECT * FROM invoice_milestones WHERE invoice_id = ? ORDER BY position').all(invoiceId)
 }
 
 function mapLine(row) {
@@ -643,9 +679,9 @@ function mapMilestone(row) {
   }
 }
 
-function paymentsOf(db, invoiceId) {
-  const payments = db.prepare('SELECT * FROM payments WHERE invoice_id = ? ORDER BY received_on, created_at').all(invoiceId)
-  const receipts = db.prepare('SELECT id, number, payment_id, amount_minor, created_at FROM receipts WHERE invoice_id = ?').all(invoiceId)
+async function paymentsOf(db, invoiceId) {
+  const payments = await db.prepare('SELECT * FROM payments WHERE invoice_id = ? ORDER BY received_on, created_at').all(invoiceId)
+  const receipts = await db.prepare('SELECT id, number, payment_id, amount_minor, created_at FROM receipts WHERE invoice_id = ?').all(invoiceId)
   const byPayment = new Map(receipts.map((receipt) => [receipt.payment_id, receipt]))
   return payments.map((payment) => {
     const receipt = byPayment.get(payment.id)
@@ -673,10 +709,10 @@ function paymentsOf(db, invoiceId) {
   })
 }
 
-function presentInvoice(db, id) {
-  const row = mustRow(db, id)
+async function presentInvoice(db, id) {
+  const row = await mustRow(db, id)
   const today = todayISO()
-  const payments = paymentsOf(db, id)
+  const payments = await paymentsOf(db, id)
   const paidMinor = payments.filter((payment) => payment.status === 'recorded').reduce((sum, payment) => sum + payment.amountMinor, 0)
   const position = paymentPosition({
     lifecycle: row.lifecycle,
@@ -730,11 +766,11 @@ function presentInvoice(db, id) {
     outstandingMinor: position.outstandingMinor,
     overpaidMinor: position.overpaidMinor,
     milestoneMode: row.milestone_mode,
-    lines: linesOf(db, id).map(mapLine),
-    milestones: milestonesOf(db, id).map(mapMilestone),
+    lines: (await linesOf(db, id)).map(mapLine),
+    milestones: (await milestonesOf(db, id)).map(mapMilestone),
     payments,
     revision: row.revision,
-    revisions: db.prepare('SELECT revision, reason, created_at FROM document_revisions WHERE invoice_id = ? ORDER BY revision').all(id)
+    revisions: (await db.prepare('SELECT revision, reason, created_at FROM document_revisions WHERE invoice_id = ? ORDER BY revision').all(id))
       .map((item) => ({ revision: item.revision, reason: item.reason, createdAt: item.created_at })),
     supersedesInvoiceId: row.supersedes_invoice_id,
     issuedAt: row.issued_at,
@@ -746,13 +782,13 @@ function presentInvoice(db, id) {
   }
 }
 
-export function getInvoice(db, id) {
-  return presentInvoice(db, id)
+export async function getInvoice(db, id) {
+  return await presentInvoice(db, id)
 }
 
-function insertInvoice(db, id, number, docYear, docSeq, prepared, clientId, projectId, supersedesInvoiceId = null) {
+async function insertInvoice(db, id, number, docYear, docSeq, prepared, clientId, projectId, supersedesInvoiceId = null) {
   const stamp = nowIso()
-  db.prepare(`INSERT INTO invoices (
+  await db.prepare(`INSERT INTO invoices (
     id, number, doc_year, doc_seq, lifecycle, client_id, project_id, client_snapshot_json, issuer_snapshot_json,
     currency, issue_date, due_date, project_title, project_description, po_reference, payment_terms, notes, terms,
     discount_minor, discount_label, tax_rate_bps, tax_label, subtotal_minor, tax_minor, total_minor, milestone_mode,
@@ -768,37 +804,37 @@ function insertInvoice(db, id, number, docYear, docSeq, prepared, clientId, proj
   )
 }
 
-export function createInvoice(db, body) {
-  return withTransaction(db, () => {
-    const prepared = collectInvoiceBody(db, body)
+export async function createInvoice(db, body) {
+  return withTransaction(db, async (db) => {
+    const prepared = await collectInvoiceBody(db, body)
     if (prepared.dueDate && prepared.issueDate && prepared.dueDate < prepared.issueDate) {
       throw new HttpError(400, 'Due date cannot be before the issue date', 'VALIDATION')
     }
-    const clientId = persistClientChoice(db, prepared.clientId, prepared.fields, prepared.saveClient)
-    const projectId = persistProjectChoice(db, prepared.projectId, clientId, prepared.projectTitle, prepared.projectDescription, prepared.saveProject)
+    const clientId = await persistClientChoice(db, prepared.clientId, prepared.fields, prepared.saveClient)
+    const projectId = await persistProjectChoice(db, prepared.projectId, clientId, prepared.projectTitle, prepared.projectDescription, prepared.saveProject)
     const id = randomUUID()
-    const allocated = nextInvoiceNumber(db)
-    insertInvoice(db, id, allocated.number, allocated.year, allocated.seq, prepared, clientId, projectId)
-    replaceChildren(db, id, prepared.lines, prepared.schedule.milestones)
-    const row = mustRow(db, id)
-    audit(db, { entityType: 'invoice', entityId: id, action: 'invoice.created', summary: `Created draft ${allocated.number}`, metadata: invoiceMetadata(row) })
-    return presentInvoice(db, id)
+    const allocated = await nextInvoiceNumber(db)
+    await insertInvoice(db, id, allocated.number, allocated.year, allocated.seq, prepared, clientId, projectId)
+    await replaceChildren(db, id, prepared.lines, prepared.schedule.milestones)
+    const row = await mustRow(db, id)
+    await audit(db, { entityType: 'invoice', entityId: id, action: 'invoice.created', summary: `Created draft ${allocated.number}`, metadata: invoiceMetadata(row) })
+    return await presentInvoice(db, id)
   })
 }
 
-export function updateInvoice(db, id, body) {
-  return withTransaction(db, () => {
-    const existing = mustRow(db, id)
+export async function updateInvoice(db, id, body) {
+  return withTransaction(db, async (db) => {
+    const existing = await mustRow(db, id)
     if (existing.lifecycle !== 'draft') {
       throw new HttpError(409, 'Issued invoices stay unchanged. Cancel this invoice or start a revision.', 'LOCKED')
     }
-    const prepared = collectInvoiceBody(db, body)
+    const prepared = await collectInvoiceBody(db, body)
     if (prepared.dueDate && prepared.issueDate && prepared.dueDate < prepared.issueDate) {
       throw new HttpError(400, 'Due date cannot be before the issue date', 'VALIDATION')
     }
-    const clientId = persistClientChoice(db, prepared.clientId, prepared.fields, prepared.saveClient)
-    const projectId = persistProjectChoice(db, prepared.projectId, clientId, prepared.projectTitle, prepared.projectDescription, prepared.saveProject)
-    db.prepare(`UPDATE invoices SET
+    const clientId = await persistClientChoice(db, prepared.clientId, prepared.fields, prepared.saveClient)
+    const projectId = await persistProjectChoice(db, prepared.projectId, clientId, prepared.projectTitle, prepared.projectDescription, prepared.saveProject)
+    await db.prepare(`UPDATE invoices SET
       client_id = ?, project_id = ?, client_snapshot_json = ?, issuer_snapshot_json = ?, currency = ?, issue_date = ?, due_date = ?,
       project_title = ?, project_description = ?, po_reference = ?, payment_terms = ?, notes = ?, terms = ?,
       discount_minor = ?, discount_label = ?, tax_rate_bps = ?, tax_label = ?, subtotal_minor = ?, tax_minor = ?, total_minor = ?,
@@ -810,29 +846,27 @@ export function updateInvoice(db, id, body) {
       prepared.totals.taxRateBps, prepared.taxLabel, prepared.totals.subtotalMinor, prepared.totals.taxMinor,
       prepared.totals.totalMinor, prepared.schedule.mode, nowIso(), id,
     )
-    replaceChildren(db, id, prepared.lines, prepared.schedule.milestones)
-    const row = mustRow(db, id)
-    audit(db, { entityType: 'invoice', entityId: id, action: 'invoice.updated', summary: `Updated draft ${row.number}`, metadata: invoiceMetadata(row) })
-    return presentInvoice(db, id)
+    await replaceChildren(db, id, prepared.lines, prepared.schedule.milestones)
+    const row = await mustRow(db, id)
+    await audit(db, { entityType: 'invoice', entityId: id, action: 'invoice.updated', summary: `Updated draft ${row.number}`, metadata: invoiceMetadata(row) })
+    return await presentInvoice(db, id)
   })
 }
 
-function copyLogo(dataRoot, invoiceId, source) {
-  if (!source || !fs.existsSync(source)) return ''
-  const extension = path.extname(source).toLowerCase()
-  const safeExt = extension === '.jpg' || extension === '.jpeg' ? '.jpg' : '.png'
-  const relative = `document-assets/${invoiceId}/logo${safeExt}`
-  const destination = safeDataPath(dataRoot, relative)
-  fs.mkdirSync(path.dirname(destination), { recursive: true })
-  fs.copyFileSync(source, destination)
-  return relative
+async function freezeLogo(db, dataRoot, portfolioLogo, invoiceId) {
+  const source = await currentLogo(db, dataRoot, portfolioLogo)
+  if (!source) return ''
+  const extension = source.contentType === 'image/jpeg' ? '.jpg' : '.png'
+  const key = `document-assets/${invoiceId}/logo${extension}`
+  await writeAsset(db, key, source.buffer, source.contentType)
+  return key
 }
 
-export function issueInvoice(db, dataRoot, portfolioLogo, id) {
-  return withTransaction(db, () => {
-    const row = mustRow(db, id)
+export async function issueInvoice(db, dataRoot, portfolioLogo, id) {
+  return withTransaction(db, async (db) => {
+    const row = await mustRow(db, id)
     if (row.lifecycle !== 'draft') throw new HttpError(409, 'Only drafts can be issued', 'LOCKED')
-    const storedLines = linesOf(db, id).map((line) => ({
+    const storedLines = (await linesOf(db, id)).map((line) => ({
       description: line.description,
       quantityMilli: line.quantity_milli,
       unitPriceMinor: line.unit_price_minor,
@@ -854,7 +888,7 @@ export function issueInvoice(db, dataRoot, portfolioLogo, id) {
     if (row.due_date < row.issue_date) throw new HttpError(400, 'Due date cannot be before the issue date', 'VALIDATION')
     const client = readJson(row.client_snapshot_json, {})
     if (!client.businessName) throw new HttpError(400, 'Add a client name before issuing', 'VALIDATION')
-    const storedMilestones = milestonesOf(db, id)
+    const storedMilestones = await milestonesOf(db, id)
     let schedule
     if (row.milestone_mode === 'percent') {
       try {
@@ -878,62 +912,62 @@ export function issueInvoice(db, dataRoot, portfolioLogo, id) {
     }
     let clientId = row.client_id
     if (!clientId) {
-      clientId = createClient(db, client).id
+      clientId = (await createClient(db, client)).id
     }
     const issuer = readJson(row.issuer_snapshot_json, {})
-    const logoFile = copyLogo(dataRoot, id, currentLogoAbsolute(db, dataRoot, portfolioLogo))
+    const logoFile = await freezeLogo(db, dataRoot, portfolioLogo, id)
     const frozenIssuer = { ...issuer, logoFile }
     const stamp = nowIso()
-    db.prepare(`UPDATE invoices SET
+    await db.prepare(`UPDATE invoices SET
       lifecycle = 'issued', client_id = ?, issuer_snapshot_json = ?, subtotal_minor = ?, tax_minor = ?, total_minor = ?,
       issued_at = ?, updated_at = ?, revision = 1
       WHERE id = ? AND lifecycle = 'draft'`).run(
       clientId, JSON.stringify(frozenIssuer), totals.subtotalMinor, totals.taxMinor, totals.totalMinor, stamp, stamp, id,
     )
-    storedLines.forEach((line, index) => {
-      const stored = linesOf(db, id)[index]
-      db.prepare('UPDATE invoice_lines SET line_total_minor = ? WHERE id = ?').run(line.lineTotalMinor, stored.id)
-    })
-    schedule.forEach((item) => {
-      db.prepare('UPDATE invoice_milestones SET amount_minor = ?, rounding_adjustment_minor = ? WHERE id = ?')
+    const persistedLines = await linesOf(db, id)
+    for (const [index, line] of storedLines.entries()) {
+      await db.prepare('UPDATE invoice_lines SET line_total_minor = ? WHERE id = ?').run(line.lineTotalMinor, persistedLines[index].id)
+    }
+    for (const item of schedule) {
+      await db.prepare('UPDATE invoice_milestones SET amount_minor = ?, rounding_adjustment_minor = ? WHERE id = ?')
         .run(item.amountMinor, item.roundingAdjustmentMinor || 0, item.id)
-    })
-    const published = presentInvoice(db, id)
-    db.prepare(`INSERT INTO document_revisions (id, invoice_id, revision, reason, snapshot_json, created_at) VALUES (?, ?, 1, ?, ?, ?)`)
+    }
+    const published = await presentInvoice(db, id)
+    await db.prepare(`INSERT INTO document_revisions (id, invoice_id, revision, reason, snapshot_json, created_at) VALUES (?, ?, 1, ?, ?, ?)`)
       .run(randomUUID(), id, 'Issued', JSON.stringify(published), stamp)
-    audit(db, {
+    await audit(db, {
       entityType: 'invoice',
       entityId: id,
       action: 'invoice.issued',
       summary: `Issued ${published.number}`,
-      metadata: invoiceMetadata(mustRow(db, id), { totalMinor: published.totalMinor }),
+      metadata: invoiceMetadata(await mustRow(db, id), { totalMinor: published.totalMinor }),
     })
     return published
   })
 }
 
-export function cancelInvoice(db, id, body) {
-  return withTransaction(db, () => {
-    const row = mustRow(db, id)
+export async function cancelInvoice(db, id, body) {
+  return withTransaction(db, async (db) => {
+    const row = await mustRow(db, id)
     if (row.lifecycle !== 'issued') throw new HttpError(409, 'Only issued invoices can be cancelled', 'LOCKED')
     const reason = clip(body?.reason, 500, 'Cancellation reason', true)
     const stamp = nowIso()
     const revision = row.revision + 1
-    db.prepare(`UPDATE invoices SET lifecycle = 'cancelled', cancelled_at = ?, cancel_reason = ?, revision = ?, updated_at = ? WHERE id = ?`)
+    await db.prepare(`UPDATE invoices SET lifecycle = 'cancelled', cancelled_at = ?, cancel_reason = ?, revision = ?, updated_at = ? WHERE id = ?`)
       .run(stamp, reason, revision, stamp, id)
-    const snapshot = presentInvoice(db, id)
-    db.prepare(`INSERT INTO document_revisions (id, invoice_id, revision, reason, snapshot_json, created_at) VALUES (?, ?, ?, ?, ?, ?)`)
+    const snapshot = await presentInvoice(db, id)
+    await db.prepare(`INSERT INTO document_revisions (id, invoice_id, revision, reason, snapshot_json, created_at) VALUES (?, ?, ?, ?, ?, ?)`)
       .run(randomUUID(), id, revision, reason, JSON.stringify(snapshot), stamp)
-    audit(db, { entityType: 'invoice', entityId: id, action: 'invoice.cancelled', summary: `Cancelled ${row.number}`, metadata: invoiceMetadata(row) })
+    await audit(db, { entityType: 'invoice', entityId: id, action: 'invoice.cancelled', summary: `Cancelled ${row.number}`, metadata: invoiceMetadata(row) })
     return snapshot
   })
 }
 
-function cloneDraft(db, sourceId, { supersedes }) {
-  const source = presentInvoice(db, sourceId)
-  const row = mustRow(db, sourceId)
+async function cloneDraft(db, sourceId, { supersedes }) {
+  const source = await presentInvoice(db, sourceId)
+  const row = await mustRow(db, sourceId)
   const id = randomUUID()
-  const allocated = nextInvoiceNumber(db)
+  const allocated = await nextInvoiceNumber(db)
   const issuer = readJson(row.issuer_snapshot_json, {})
   delete issuer.logoFile
   const prepared = {
@@ -959,8 +993,8 @@ function cloneDraft(db, sourceId, { supersedes }) {
     },
     schedule: { mode: source.milestoneMode },
   }
-  insertInvoice(db, id, allocated.number, allocated.year, allocated.seq, prepared, source.clientId, source.projectId, supersedes ? sourceId : null)
-  replaceChildren(db, id, source.lines.map((line) => ({
+  await insertInvoice(db, id, allocated.number, allocated.year, allocated.seq, prepared, source.clientId, source.projectId, supersedes ? sourceId : null)
+  await replaceChildren(db, id, source.lines.map((line) => ({
     description: line.description,
     quantityMilli: line.quantityMilli,
     unitPriceMinor: line.unitPriceMinor,
@@ -975,30 +1009,30 @@ function cloneDraft(db, sourceId, { supersedes }) {
   return { id, number: allocated.number, source }
 }
 
-export function duplicateInvoice(db, id) {
-  return withTransaction(db, () => {
-    const copy = cloneDraft(db, id, { supersedes: false })
-    audit(db, { entityType: 'invoice', entityId: copy.id, action: 'invoice.duplicated', summary: `Duplicated ${copy.source.number} as ${copy.number}`, metadata: { invoiceId: copy.id, sourceInvoiceId: id } })
-    return presentInvoice(db, copy.id)
+export async function duplicateInvoice(db, id) {
+  return withTransaction(db, async (db) => {
+    const copy = await cloneDraft(db, id, { supersedes: false })
+    await audit(db, { entityType: 'invoice', entityId: copy.id, action: 'invoice.duplicated', summary: `Duplicated ${copy.source.number} as ${copy.number}`, metadata: { invoiceId: copy.id, sourceInvoiceId: id } })
+    return await presentInvoice(db, copy.id)
   })
 }
 
-export function reviseInvoice(db, id) {
-  return withTransaction(db, () => {
-    const row = mustRow(db, id)
+export async function reviseInvoice(db, id) {
+  return withTransaction(db, async (db) => {
+    const row = await mustRow(db, id)
     if (row.lifecycle === 'draft') throw new HttpError(409, 'Edit the draft directly', 'LOCKED')
-    const copy = cloneDraft(db, id, { supersedes: true })
-    audit(db, { entityType: 'invoice', entityId: copy.id, action: 'invoice.revised', summary: `Started revision ${copy.number} from ${copy.source.number}`, metadata: { invoiceId: copy.id, sourceInvoiceId: id } })
-    return presentInvoice(db, copy.id)
+    const copy = await cloneDraft(db, id, { supersedes: true })
+    await audit(db, { entityType: 'invoice', entityId: copy.id, action: 'invoice.revised', summary: `Started revision ${copy.number} from ${copy.source.number}`, metadata: { invoiceId: copy.id, sourceInvoiceId: id } })
+    return await presentInvoice(db, copy.id)
   })
 }
 
-export function deleteDraft(db, id) {
-  return withTransaction(db, () => {
-    const row = mustRow(db, id)
+export async function deleteDraft(db, id) {
+  return withTransaction(db, async (db) => {
+    const row = await mustRow(db, id)
     if (row.lifecycle !== 'draft') throw new HttpError(409, 'Issued invoices cannot be deleted', 'LOCKED')
-    audit(db, { entityType: 'invoice', entityId: id, action: 'invoice.deleted', summary: `Deleted draft ${row.number}`, metadata: invoiceMetadata(row) })
-    db.prepare('DELETE FROM invoices WHERE id = ? AND lifecycle = ?').run(id, 'draft')
+    await audit(db, { entityType: 'invoice', entityId: id, action: 'invoice.deleted', summary: `Deleted draft ${row.number}`, metadata: invoiceMetadata(row) })
+    await db.prepare('DELETE FROM invoices WHERE id = ? AND lifecycle = ?').run(id, 'draft')
     return { ok: true }
   })
 }
@@ -1038,28 +1072,28 @@ function paymentHash(input) {
   })).digest('hex')
 }
 
-function paidSum(db, invoiceId) {
-  const row = db.prepare(`SELECT COALESCE(SUM(amount_minor), 0) AS paid FROM payments WHERE invoice_id = ? AND status = 'recorded'`).get(invoiceId)
+async function paidSum(db, invoiceId) {
+  const row = await db.prepare(`SELECT COALESCE(SUM(amount_minor), 0) AS paid FROM payments WHERE invoice_id = ? AND status = 'recorded'`).get(invoiceId)
   return Number(row.paid)
 }
 
-export function recordPayment(db, invoiceId, body, idempotencyKey) {
+export async function recordPayment(db, invoiceId, body, idempotencyKey) {
   const key = typeof idempotencyKey === 'string' ? idempotencyKey.trim() : ''
   if (!key || key.length > 200) throw new HttpError(400, 'Idempotency-Key is required', 'IDEMPOTENCY')
   const input = paymentInput(body)
   const hash = paymentHash(input)
-  return withTransaction(db, () => {
-    const existing = db.prepare('SELECT * FROM payments WHERE idempotency_key = ?').get(key)
+  return withTransaction(db, async (db) => {
+    const existing = await db.prepare('SELECT * FROM payments WHERE idempotency_key = ?').get(key)
     if (existing) {
       if (existing.request_hash !== hash || existing.invoice_id !== invoiceId) {
         throw new HttpError(409, 'This idempotency key was already used for a different payment', 'IDEMPOTENCY_CONFLICT')
       }
-      return { invoice: presentInvoice(db, invoiceId), replay: true }
+      return { invoice: await presentInvoice(db, invoiceId), replay: true }
     }
-    const invoice = mustRow(db, invoiceId)
+    const invoice = await mustRow(db, invoiceId)
     if (invoice.lifecycle === 'draft') throw new HttpError(409, 'Issue the invoice before recording a payment', 'LOCKED')
     if (invoice.lifecycle === 'cancelled') throw new HttpError(409, 'Cancelled invoices cannot accept payments', 'LOCKED')
-    const alreadyPaid = paidSum(db, invoiceId)
+    const alreadyPaid = await paidSum(db, invoiceId)
     const balance = invoice.total_minor - alreadyPaid
     const outstanding = Math.max(0, balance)
     let overpaymentMinor = 0
@@ -1070,58 +1104,58 @@ export function recordPayment(db, invoiceId, body, idempotencyKey) {
       overpaymentMinor = input.amountMinor - outstanding
     }
     const id = randomUUID()
-    db.prepare(`INSERT INTO payments (
+    await db.prepare(`INSERT INTO payments (
       id, invoice_id, amount_minor, received_on, method, method_detail, reference, notes,
       idempotency_key, request_hash, status, overpayment_minor, overpayment_confirmed, reversed_at, reversal_reason, created_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'recorded', ?, ?, NULL, '', ?)`).run(
       id, invoiceId, input.amountMinor, input.receivedOn, input.method, input.methodDetail, input.reference, input.notes,
       key, hash, overpaymentMinor, input.confirmOverpayment ? 1 : 0, nowIso(),
     )
-    audit(db, {
+    await audit(db, {
       entityType: 'payment',
       entityId: id,
       action: 'payment.recorded',
       summary: `Recorded a payment on ${invoice.number}`,
       metadata: invoiceMetadata(invoice, { paymentId: id, amountMinor: input.amountMinor }),
     })
-    return { invoice: presentInvoice(db, invoiceId), replay: false, paymentId: id }
+    return { invoice: await presentInvoice(db, invoiceId), replay: false, paymentId: id }
   })
 }
 
-export function reversePayment(db, paymentId, body) {
+export async function reversePayment(db, paymentId, body) {
   const reason = clip(body?.reason, 500, 'Reversal reason', true)
-  return withTransaction(db, () => {
-    const payment = db.prepare('SELECT * FROM payments WHERE id = ?').get(paymentId)
+  return withTransaction(db, async (db) => {
+    const payment = await db.prepare('SELECT * FROM payments WHERE id = ?').get(paymentId)
     if (!payment) throw new HttpError(404, 'Payment not found', 'NOT_FOUND')
     if (payment.status === 'reversed') throw new HttpError(409, 'This payment is already reversed', 'LOCKED')
     const stamp = nowIso()
-    db.prepare(`UPDATE payments SET status = 'reversed', reversed_at = ?, reversal_reason = ? WHERE id = ? AND status = 'recorded'`)
+    await db.prepare(`UPDATE payments SET status = 'reversed', reversed_at = ?, reversal_reason = ? WHERE id = ? AND status = 'recorded'`)
       .run(stamp, reason, paymentId)
-    const invoice = mustRow(db, payment.invoice_id)
-    audit(db, {
+    const invoice = await mustRow(db, payment.invoice_id)
+    await audit(db, {
       entityType: 'payment',
       entityId: paymentId,
       action: 'payment.reversed',
       summary: `Reversed a payment on ${invoice.number}`,
       metadata: invoiceMetadata(invoice, { paymentId, amountMinor: payment.amount_minor }),
     })
-    return presentInvoice(db, payment.invoice_id)
+    return await presentInvoice(db, payment.invoice_id)
   })
 }
 
-export function createReceipt(db, paymentId) {
-  return withTransaction(db, () => {
-    const payment = db.prepare('SELECT * FROM payments WHERE id = ?').get(paymentId)
+export async function createReceipt(db, paymentId) {
+  return withTransaction(db, async (db) => {
+    const payment = await db.prepare('SELECT * FROM payments WHERE id = ?').get(paymentId)
     if (!payment) throw new HttpError(404, 'Payment not found', 'NOT_FOUND')
-    const existing = db.prepare('SELECT * FROM receipts WHERE payment_id = ?').get(paymentId)
-    if (existing) return presentReceipt(db, existing.id)
+    const existing = await db.prepare('SELECT * FROM receipts WHERE payment_id = ?').get(paymentId)
+    if (existing) return await presentReceipt(db, existing.id)
     if (payment.status !== 'recorded') {
       throw new HttpError(409, 'Receipts are only issued for payments that were successfully recorded', 'LOCKED')
     }
-    const invoice = mustRow(db, payment.invoice_id)
-    const paidToDateMinor = paidSum(db, invoice.id)
+    const invoice = await mustRow(db, payment.invoice_id)
+    const paidToDateMinor = await paidSum(db, invoice.id)
     const remainingMinor = Math.max(0, invoice.total_minor - paidToDateMinor)
-    const allocated = nextReceiptNumber(db)
+    const allocated = await nextReceiptNumber(db)
     const client = readJson(invoice.client_snapshot_json, {})
     const issuer = readJson(invoice.issuer_snapshot_json, {})
     const snapshot = {
@@ -1153,26 +1187,26 @@ export function createReceipt(db, paymentId) {
     }
     const id = randomUUID()
     const stamp = nowIso()
-    db.prepare(`INSERT INTO receipts (
+    await db.prepare(`INSERT INTO receipts (
       id, number, doc_year, doc_seq, payment_id, invoice_id, amount_minor, snapshot_json, created_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
       id, allocated.number, allocated.year, allocated.seq, paymentId, invoice.id, payment.amount_minor, JSON.stringify(snapshot), stamp,
     )
-    audit(db, {
+    await audit(db, {
       entityType: 'receipt',
       entityId: id,
       action: 'receipt.issued',
       summary: `Issued receipt ${allocated.number} for ${invoice.number}`,
       metadata: invoiceMetadata(invoice, { receiptId: id, paymentId, amountMinor: payment.amount_minor }),
     })
-    return presentReceipt(db, id)
+    return await presentReceipt(db, id)
   })
 }
 
-function presentReceipt(db, id) {
-  const row = db.prepare('SELECT * FROM receipts WHERE id = ?').get(id)
+async function presentReceipt(db, id) {
+  const row = await db.prepare('SELECT * FROM receipts WHERE id = ?').get(id)
   if (!row) throw new HttpError(404, 'Receipt not found', 'NOT_FOUND')
-  const payment = db.prepare('SELECT status, reversed_at FROM payments WHERE id = ?').get(row.payment_id)
+  const payment = await db.prepare('SELECT status, reversed_at FROM payments WHERE id = ?').get(row.payment_id)
   const snapshot = readJson(row.snapshot_json, {})
   return {
     id: row.id,
@@ -1187,12 +1221,12 @@ function presentReceipt(db, id) {
   }
 }
 
-export function getReceipt(db, id) {
-  return presentReceipt(db, id)
+export async function getReceipt(db, id) {
+  return await presentReceipt(db, id)
 }
 
-export function listReceipts(db, query) {
-  const rows = db.prepare(`SELECT r.*, i.currency, i.client_id, i.project_id
+export async function listReceipts(db, query) {
+  const rows = await db.prepare(`SELECT r.*, i.currency, i.client_id, i.project_id
     FROM receipts r JOIN invoices i ON i.id = r.invoice_id
     ORDER BY r.created_at DESC`).all()
   let items = rows.map((row) => {
@@ -1246,8 +1280,8 @@ function mapActivity(row) {
   }
 }
 
-export function getDashboard(db, filters) {
-  const items = queryInvoices(db, filters)
+export async function getDashboard(db, filters) {
+  const items = await queryInvoices(db, filters)
   const issued = items.filter((item) => item.lifecycle === 'issued')
   const totalsByCurrencyMap = new Map()
   issued.forEach((item) => {
@@ -1263,12 +1297,12 @@ export function getDashboard(db, filters) {
   let receiptCount = 0
   if (issued.length) {
     const placeholders = issued.map(() => '?').join(', ')
-    const row = db.prepare(`SELECT COUNT(*) AS count FROM receipts WHERE invoice_id IN (${placeholders})`).get(...issued.map((item) => item.id))
+    const row = await db.prepare(`SELECT COUNT(*) AS count FROM receipts WHERE invoice_id IN (${placeholders})`).get(...issued.map((item) => item.id))
     receiptCount = Number(row.count)
   }
   const today = todayISO()
   const horizon = addDaysISO(today, 14)
-  let recent = db.prepare('SELECT * FROM audit_events ORDER BY created_at DESC LIMIT 80').all().map(mapActivity)
+  let recent = (await db.prepare('SELECT * FROM audit_events ORDER BY created_at DESC LIMIT 80').all()).map(mapActivity)
   if (filters.clientId) recent = recent.filter((item) => item.clientId === filters.clientId)
   if (filters.projectId) recent = recent.filter((item) => item.projectId === filters.projectId)
   if (filters.from) recent = recent.filter((item) => item.createdAt.slice(0, 10) >= filters.from)
@@ -1290,9 +1324,9 @@ export function getDashboard(db, filters) {
   }
 }
 
-export function buildInvoicePdfModel(db, dataRoot, portfolioLogo, id) {
-  const invoice = presentInvoice(db, id)
-  const logoPath = invoiceLogoAbsolute(db, dataRoot, portfolioLogo, id)
+export async function buildInvoicePdfModel(db, dataRoot, portfolioLogo, id) {
+  const invoice = await presentInvoice(db, id)
+  const logo = await invoiceLogo(db, dataRoot, portfolioLogo, id)
   const paidForSchedule = invoice.payments.filter((payment) => payment.status === 'recorded').reduce((sum, payment) => sum + payment.amountMinor, 0)
   let remainingPaid = paidForSchedule
   const milestones = invoice.milestones.map((item) => {
@@ -1300,21 +1334,13 @@ export function buildInvoicePdfModel(db, dataRoot, portfolioLogo, id) {
     remainingPaid -= applied
     return { ...item, appliedMinor: applied, dueMinor: Math.max(0, item.amountMinor - applied) }
   })
-  return { ...invoice, milestones, logoPath: fs.existsSync(logoPath) ? logoPath : '' }
+  return { ...invoice, milestones, logo: logo?.buffer || null }
 }
 
-export function buildReceiptPdfModel(db, dataRoot, portfolioLogo, id) {
-  const receipt = presentReceipt(db, id)
+export async function buildReceiptPdfModel(db, dataRoot, portfolioLogo, id) {
+  const receipt = await presentReceipt(db, id)
   const snapshot = receipt.snapshot
-  let logoPath = ''
-  if (snapshot.logoFile) {
-    try {
-      const resolved = safeDataPath(dataRoot, snapshot.logoFile)
-      if (fs.existsSync(resolved)) logoPath = resolved
-    } catch {
-      logoPath = ''
-    }
-  }
-  if (!logoPath) logoPath = currentLogoAbsolute(db, dataRoot, portfolioLogo)
-  return { ...receipt, logoPath: fs.existsSync(logoPath) ? logoPath : '' }
+  let logo = snapshot.logoFile ? await readAsset(db, dataRoot, snapshot.logoFile) : null
+  if (!logo) logo = await currentLogo(db, dataRoot, portfolioLogo)
+  return { ...receipt, logo: logo?.buffer || null }
 }

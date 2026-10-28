@@ -16,6 +16,7 @@
     "build:css": "npx tailwindcss -i ./src/index.css -o ./dist/index.css"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
     "autoprefixer": "^10.4.19",
     "express": "^4.22.3",
     "framer-motion": "^11.2.12",

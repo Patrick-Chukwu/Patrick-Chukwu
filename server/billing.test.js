@@ -4,12 +4,10 @@ import os from 'node:os'
 import path from 'node:path'
 import { after, before, describe, it } from 'node:test'
 import { createHash } from 'node:crypto'
-import { resetLoginLimits } from './auth.js'
 import { createApp } from './app.js'
 import { extractPdfText } from './pdf-text.js'
 
 process.env.BILLING_ADMIN_PASSWORD = 'test-password-not-real'
-process.env.BILLING_SESSION_SECRET = 'test-session-secret-not-real'
 process.env.BILLING_SERVE_STATIC = '0'
 
 let server
@@ -89,9 +87,9 @@ function invoiceBody(overrides = {}) {
 }
 
 before(async () => {
-  resetLoginLimits()
   dataRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'billing-'))
   app = createApp({ dbPath: path.join(dataRoot, 'billing.sqlite'), dataRoot, serveStatic: false })
+  await app.locals.ready()
   server = app.listen(0, '127.0.0.1')
   await new Promise((resolve) => server.once('listening', resolve))
   base = `http://127.0.0.1:${server.address().port}`
@@ -101,8 +99,8 @@ before(async () => {
 })
 
 after(() => new Promise((resolve) => {
-  server.close(() => {
-    app.locals.ctx.db.close()
+  server.close(async () => {
+    await app.locals.close()
     fs.rmSync(dataRoot, { recursive: true, force: true })
     resolve()
   })

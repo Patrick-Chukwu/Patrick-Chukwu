@@ -47,7 +47,7 @@ export function SelectInput({ label, children, ...props }) {
 
 export function Banner({ tone = 'error', children }) {
   const toneClass = tone === 'success' ? 'border-secondary text-white' : 'border-ash text-secondary'
-  return <div role='status' aria-live='polite' className={`border ${toneClass} rounded-md px-3 py-2 text-sm`}>{children}</div>
+  return <div role={tone === 'success' ? 'status' : 'alert'} className={`border ${toneClass} rounded-md px-3 py-2 text-sm`}>{children}</div>
 }
 
 export function StatusBadge({ status }) {

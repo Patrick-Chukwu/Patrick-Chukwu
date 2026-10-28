@@ -20,7 +20,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['server/**/*.js', 'scripts/**/*.js', 'shared/**/*.test.js'],
+      files: ['server/**/*.js', 'api/**/*.js', 'scripts/**/*.js', 'shared/**/*.test.js'],
       env: { node: true, browser: false },
     },
     {
